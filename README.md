@@ -1,8 +1,7 @@
 # Sis-Calificacion-FULL-STACK
-Sistema desarrollado en Vue.js como frontend y Laravel como backend.
+Este proyecto es un sistema de calificación desarrollado con una arquitectura **Full Stack** que utiliza **Vue.js** para el frontend y **Laravel** como backend. El sistema está diseñado para gestionar la calificación de pruebas o exámenes de forma eficiente y escalable.
 
-
-Subir cambios
+## Subir cambios
 
 - cd frontend or backend
 - git add .
