@@ -58,9 +58,7 @@ class AuthController extends Controller
                 'email' => $user->email,
             ],
         ]);
-    }
-
-    
+    }    
 
     public function logout()
     {
