@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,11 +15,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+#Prueba de API
+Route::get("/test", function (Request $request) {
+    return response()->json(["API" => "Its working!!!"]);
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 
-Route::get("/test", function (Request $request) {
-    return response()->json(["API" => "Its working!!!"]);
+
+# Rutas protegidas, necesitan una autenticacion
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('logout', [AuthController::class, 'logout']);
+    
 });
