@@ -3,10 +3,15 @@ Este proyecto es un sistema de calificación desarrollado con una arquitectura *
 
 ## Subir cambios
 
-- cd frontend or backend
+- cd frontend 
 - git add .
 - git commit -m "message"
 - cd ..
-- git add frontend or backend
+- cd backend
+- git add .
+- git commit -m "message"
+- cd ..
+- git add frontend
+- git add backend
 - git commit -m "message"
 - git push
