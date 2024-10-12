@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostulanteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,5 +43,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::post('/users', [UserController::class, 'create']);
     Route::put('/users/{id}', [UserController::class, 'update']);
+
+    // POSTULANTES
+    Route::get('/postulantes', [PostulanteController::class, 'index']);
+    Route::post('/upload-excel', [PostulanteController::class, 'uploadExcel']);
+    Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
+
 
 });

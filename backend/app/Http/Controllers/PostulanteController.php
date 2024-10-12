@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Postulante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Schema;
 
 
 class PostulanteController extends Controller
@@ -12,59 +14,65 @@ class PostulanteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $users = Postulante::orderBy('id', 'desc')->get();
+        // Obtener todos los usuarios
+        $perPage = $request->input('per_page', 7); // Número de elementos por página, por defecto 10
+        $postulantes = Postulante::orderBy('id', 'desc')->paginate($perPage);
 
         // Retornar los usuarios como respuesta JSON
-        return response()->json($users);
+        return response()->json($postulantes);
     }
 
-    public function uploadCsv(Request $request)
+
+    public function uploadExcel(Request $request)
     {
-        // Validar que el archivo es un CSV
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|mimes:csv,txt|max:2048',
-        ]);
+        try {
+            $file = $request->file('file');
 
-        if ($validator->fails()) {
-            return response()->json(['error' => 'El archivo debe ser un CSV.'], 400);
-        }
+            // Asegúrate de que el archivo fue recibido
+            if (!$file) {
+                return response()->json(['error' => 'No file uploaded'], 400);
+            }
 
-        // Abrir el archivo CSV
-        if ($file = $request->file('file')) {
-            $path = $file->getRealPath();
-            $data = array_map('str_getcsv', file($path));
+            // Cargar el archivo
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $data = $spreadsheet->getActiveSheet()->toArray();
 
-            // Obtener los encabezados
-            $header = $data[0];
-            unset($data[0]); // Eliminar la fila de encabezados del array
-
-            // Insertar datos en la base de datos
+            // Iterar sobre las filas y guardarlas en la base de datos
             foreach ($data as $row) {
-                // Asegurarse de que el número de columnas coincida
-                if (count($row) == count($header)) {
-                    $postulante = array_combine($header, $row);
-
-                    // Crear un nuevo registro en la base de datos
+                // Suponiendo que la primera fila contiene los encabezados
+                if ($row[0] !== 'dni') { // Ajusta este chequeo según tus encabezados
                     Postulante::create([
-                        'dni' => $postulante['dni'],
-                        'nombre' => $postulante['nombre'],
-                        'paterno' => $postulante['paterno'],
-                        'materno' => $postulante['materno'],
-                        'ubigeo' => $postulante['ubigeo'],
-                        'colegio' => $postulante['colegio'],
-                        'celular' => $postulante['celular'],
-                        'email' => $postulante['email'],
-                        'carrera' => $postulante['carrera'],
+                        'dni'     => $row[0],
+                        'nombre'  => $row[1],
+                        'paterno' => $row[2],
+                        'materno' => $row[3],
+                        'ubigeo'  => $row[4],
+                        'colegio' => $row[5],
+                        'celular' => $row[6],
+                        'email'   => $row[7],
+                        'carrera' => $row[8],
                     ]);
                 }
             }
 
-            return response()->json(['success' => 'Archivo CSV subido y procesado correctamente.']);
+            return response()->json(['success' => 'File imported successfully'], 200);
+        } catch (\Exception $e) {
+            // Captura cualquier error y regístralo
+            return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
         }
+    }
 
-        return response()->json(['error' => 'Error al subir el archivo.'], 400);
+    public function obtenerCampos()
+    {
+        $campos = Schema::getColumnListing('postulantes');
+        return response()->json($campos);
+    }
+
+    public function generaCodigo()
+    {
+        //
+
     }
 }
