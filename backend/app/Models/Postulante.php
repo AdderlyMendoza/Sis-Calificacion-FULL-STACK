@@ -19,5 +19,6 @@ class Postulante extends Model
         'celular',    
         'email',    
         'carrera',    
+        'codigo',    
     ];
 }

@@ -47,7 +47,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // POSTULANTES
     Route::get('/postulantes', [PostulanteController::class, 'index']);
     Route::post('/upload-excel', [PostulanteController::class, 'uploadExcel']);
+
+    // DISTRIBUCION DE AULAS
     Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
+    Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
+
+
+    
 
 
 });
