@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CalificacionController;
+use App\Http\Controllers\FichasIdentificacionController;
+use App\Http\Controllers\FichasRespuestasController;
+use App\Http\Controllers\RespuestasCorrectasController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +36,8 @@ Route::post('login', [AuthController::class, 'login']);
 // Route::post('/users', [UserController::class, 'create']);
 // Route::get('/users', [UserController::class, 'index']);
 
+// Route::post('/fr-id-seleccionados', [CalificacionController::class, 'frIdSeleccionados']);
+
 
 # Rutas protegidas, necesitan una autenticacion
 Route::middleware('auth:sanctum')->group(function () {
@@ -52,7 +58,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
     Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
 
-
+    //CALIFICACION
+    Route::post('/fr-id-postulantes', [FichasIdentificacionController::class, 'frIdPostulantes']);
+    Route::post('/fr-resp-postulantes', [FichasRespuestasController::class, 'frRespPostulantes']);
+    Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
+    Route::post('/fr-out-resultados/{tipo}', [CalificacionController::class, 'exportarResultados']);
     
 
 

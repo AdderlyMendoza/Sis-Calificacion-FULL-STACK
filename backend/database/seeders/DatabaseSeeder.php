@@ -22,5 +22,11 @@ class DatabaseSeeder extends Seeder
             'apellido_paterno' => 'Mendoza',
             'apellido_materno' => 'Nina',
         ]);
+
+        // Llamar al seeder de Areas
+        $this->call(AreasSeeder::class);
+
+        // Llamar al seeder de Ponderacion
+        $this->call(PonderacionSeeder::class);
     }
 }
