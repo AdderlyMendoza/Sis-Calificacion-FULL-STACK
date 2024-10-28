@@ -3,12 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\FichasIdentificacion;
+use App\Models\Postulante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 
 class FichasIdentificacionController extends Controller
 {
+    public function datosIdentificacion(Request $request)
+    {
+        // Número de elementos por página, valor por defecto es 5
+        $perPage = $request->input('per_page', 5);
+
+        // Obtener los datos de FichasIdentificacion
+        $datos = FichasIdentificacion::paginate($perPage);
+
+        // Obtener todos los DNI, aula y tipo en un solo paso
+        $dnis = $datos->pluck('dni')->unique();
+        $aulas = $datos->pluck('aula')->unique();
+        $tipos = $datos->pluck('tipo')->unique();
+
+        // Cargar los postulantes que coinciden con los DNI -> FALTA AULA Y TIPO EN MI BASE DE DATOS XD
+        $postulantes = Postulante::whereIn('dni', $dnis)
+            // ->orWhereIn('aula', $aulas)
+            // ->orWhereIn('tipo', $tipos)
+            ->get()
+            ->keyBy('dni'); // Puedes usar el campo que necesites como clave
+
+        // Agregar los datos del postulante a cada dato
+        foreach ($datos as $item) {
+            $postulante = $postulantes->get($item->dni);
+            $item->dni_postulante = $postulante ? $postulante->dni : null;
+            // $item->aula_postulante = $postulante ? $postulante->aula : null;
+            // $item->tipo_postulante = $postulante ? $postulante->tipo : null;
+        }
+
+        Log::info('Datos de identificación:', $datos->toArray());
+
+        return response()->json($datos);
+    }
+
+
+
     public function frIdPostulantes(Request $request)
     {
         Log::info($request->all());
@@ -31,15 +69,22 @@ class FichasIdentificacionController extends Controller
      *
      * @param \Illuminate\Http\UploadedFile $file
      */
+
     private function procesarFile($file)
     {
-        $filePath = $file->store('fichasIdentificacion');
-        $data = file_get_contents(storage_path('app/' . $filePath));
+        // Obtener el nombre original del archivo
+        $originalName = $file->getClientOriginalName();
 
-        // Log::info("Contenido del archivo:", [$data]);
+        // Definir la ruta donde quieres almacenar el archivo
+        $destinationPath = storage_path('app/fichasIdentificacion');
+
+        // Mover el archivo al directorio deseado con su nombre original
+        $file->move($destinationPath, $originalName);
+
+        // Leer el contenido del archivo
+        $data = file_get_contents($destinationPath . '/' . $originalName);
 
         $lines = explode("\n", $data);
-        // Log::info("Líneas extraídas:", ['count' => count($lines)]);
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
@@ -104,5 +149,32 @@ class FichasIdentificacionController extends Controller
     private function validarData($camp1, $camp3, $dni)
     {
         return !is_null($camp1) && !is_null($camp3) && !is_null($dni);
+    }
+
+    // public function listarArchivos()
+    // {
+    //     $files = Storage::files('fichasIdentificacion');
+    //     $fileNames = array_map('basename', $files); // Extraer solo los nombres de los archivos
+
+    //     return response()->json($fileNames);
+    // }
+
+    public function listarArchivos(Request $request)
+    {
+        $files = Storage::files('fichasIdentificacion');
+        $fileNames = array_map('basename', $files); // Extraer solo los nombres de los archivos
+
+        // Obtener los parámetros de paginación
+        $currentPage = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10); // Número de elementos por página
+
+        // Crear una instancia de LengthAwarePaginator
+        $currentItems = array_slice($fileNames, ($currentPage - 1) * $perPage, $perPage);
+        $paginator = new LengthAwarePaginator($currentItems, count($fileNames), $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return response()->json($paginator);
     }
 }

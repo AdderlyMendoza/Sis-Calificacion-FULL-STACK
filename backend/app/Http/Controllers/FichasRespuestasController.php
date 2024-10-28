@@ -14,6 +14,8 @@ class FichasRespuestasController extends Controller
     /**
      * Display a listing of the resource.
      */
+    
+
     public function frRespPostulantes(Request $request)
     {
         Log::info($request->all());
@@ -77,7 +79,7 @@ class FichasRespuestasController extends Controller
         // Asignar un valor predeterminado para id_archivo
         $id_archivo = "no se xd";
 
-        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, 3); // 1 = CAMBIAR: ingenierias
+        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, 2); // 1 = CAMBIAR: ingenierias
 
         // Validar datos antes de guardar
         if ($this->validarData($camp1, $camp2, $camp3)) {

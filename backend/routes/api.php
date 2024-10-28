@@ -58,8 +58,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
     Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
 
-    //CALIFICACION
+    ///////////////////////////////  CALIFICACION  ///////////////////////////////
+    // Ficha postulante
     Route::post('/fr-id-postulantes', [FichasIdentificacionController::class, 'frIdPostulantes']);
+    Route::get('/datosFichaIdentificacion', [FichasIdentificacionController::class, 'datosIdentificacion']);
+    Route::get('/listarFichasIdentificacion', [FichasIdentificacionController::class, 'listarArchivos']);
+
+
+    // Ficha respuestas
     Route::post('/fr-resp-postulantes', [FichasRespuestasController::class, 'frRespPostulantes']);
     Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
     Route::post('/fr-out-resultados/{tipo}', [CalificacionController::class, 'exportarResultados']);
