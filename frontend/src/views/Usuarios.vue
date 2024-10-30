@@ -1,16 +1,17 @@
 <template>
     <div>
+
+        <!-- cabecera -->
         <div class="flex justify-between ...">
             <h1 class="text-3xl font-medium text-gray-700">LISTA DE USUARIOS</h1>
-            <button type="button"
-                class="mb-2 me-2 rounded-full bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700">
-                <a href="usuarioNuevo">
-                    Nuevo usuario
-                </a>
-            </button>
+            <router-link to="/usuarioNuevo"
+                class="mb-2 me-2 block rounded-full bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out"
+                aria-label="Nuevo usuario">
+                Nuevo usuario
+            </router-link>
         </div>
 
-
+        <!-- tabla de usuarios -->
         <div class="flex flex-col mt-8">
             <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
                 <div
@@ -60,7 +61,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u?.cargo }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u?.email }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a :href="`/usuarioEditar/${u.id}`" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                                    <a :href="`/usuarioEditar/${u.id}`"
+                                        class="text-indigo-600 hover:text-indigo-900">Editar</a>
                                 </td>
                             </tr>
                         </tbody>
@@ -68,11 +70,13 @@
                 </div>
             </div>
         </div>
+
+        
     </div>
 </template>
 
 <script>
-    import axios from 'axios';  
+    import axios from 'axios';
 
     export default {
         name: 'V-Usuarios',
@@ -102,6 +106,6 @@
                 .finally(() => {
                     this.loading = false; // Cambiar el estado de carga al finalizar
                 });
-        },  
+        },
     };
 </script>

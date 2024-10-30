@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="text-3xl font-medium text-gray-700">CALIFICAR</h3>
+        <h3 class="text-3xl font-medium text-gray-700">FICHAS DE RESPUESTAS</h3>
 
         <!-- Respuestas correctas -->
         <div class="flex flex-col mt-8">

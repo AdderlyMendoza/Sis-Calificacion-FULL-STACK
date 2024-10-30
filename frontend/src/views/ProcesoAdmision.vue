@@ -1,36 +1,97 @@
 <template>
-    <div class="flex items-center justify-center h-screen px-6 bg-gray-200">
-      <div class="w-full max-w-sm p-6 bg-white rounded-md shadow-md">
-        <div class="flex items-center justify-center">
-          <svg class="w-10 h-10" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M364.61 390.213C304.625 450.196 207.37 450.196 147.386 390.213C117.394 360.22 102.398 320.911 102.398 281.6C102.398 242.291 117.394 202.981 147.386 172.989C147.386 230.4 153.6 281.6 230.4 307.2C230.4 256 256 102.4 294.4 76.7999C320 128 334.618 142.997 364.608 172.989C394.601 202.981 409.597 242.291 409.597 281.6C409.597 320.911 394.601 360.22 364.61 390.213Z"
-              fill="#4C51BF" stroke="#4C51BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path
-              d="M201.694 387.105C231.686 417.098 280.312 417.098 310.305 387.105C325.301 372.109 332.8 352.456 332.8 332.8C332.8 313.144 325.301 293.491 310.305 278.495C295.309 263.498 288 256 275.2 230.4C256 243.2 243.201 320 243.201 345.6C201.694 345.6 179.2 332.8 179.2 332.8C179.2 352.456 186.698 372.109 201.694 387.105Z"
-              fill="white" />
-          </svg>
-          <span class="text-2xl font-semibold text-gray-700">&lt;/adderly&gt;</span>
-        </div>
 
-      
+  <div>
+
+    <!-- cabecera -->
+    <div class="flex justify-between ...">
+      <h1 class="text-3xl font-medium text-gray-700">LISTA DE PROCESOS DE ADMISIÓN</h1>
+      <router-link to="/procesoAdmisionNuevo"
+        class="mb-2 me-2 block rounded-full bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out"
+        aria-label="Nuevo proceso de admisión">
+        Nuevo proceso de admisión
+      </router-link>
+    </div>
+
+
+    <!-- tabla de procesos -->
+    <div class="flex flex-col mt-8">
+      <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  Nº
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  Nombre
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  Ubicación
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="(u, index) in procesosAdmision" :key="u?.id" class="hover:bg-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ index+1 }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u?.nombre }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u?.ubicacion }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <a :href="`/usuarioEditar/${u.id}`" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  
-  </template>
-  
 
-  
-  <script>
-    import axios from 'axios';
-  
-    export default {
-      name: 'V-ProcesoAdmision',
-      data() {
-        return {
-          error: null,
-        };
-      },
-    };
-  </script>
-  
+  </div>
+
+
+</template>
+
+
+<script>
+  import axios from 'axios';
+
+  export default {
+    name: 'V-ProcesoAdmision',
+    data() {
+      return {
+        procesosAdmision: [],  // Inicializa el arreglo de usuarios
+        error: null,
+        loading: true, // Controla el estado de carga
+      };
+    },
+    mounted() {
+      // Hacer la petición al servidor para obtener los datos del usuario
+      axios.get('http://127.0.0.1:8000/api/procesosAdmision', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Agregar token de autenticación
+        }
+      })
+        .then(response => {
+          console.log(response.data); // Verifica la respuesta de la API
+          this.procesosAdmision = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+          this.error = 'Error al obtener datos del usuario';
+        })
+        .finally(() => {
+          this.loading = false; // Cambiar el estado de carga al finalizar
+        });
+    },
+  };
+</script>

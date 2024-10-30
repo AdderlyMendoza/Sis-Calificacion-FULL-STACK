@@ -4,13 +4,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Componentes que se utilizarán en las rutas
 import Login from './views/Login.vue'
 import Dashboard from './views/Dashboard.vue'
-import DistribucionAulas from './views/DistribucionAulas1.vue'
+import DistribucionAulas from './views/DistribucionAulas1.vue' // eliminar el que no se esta utilizando
 import Usuarios from './views/Usuarios.vue'
 import UsuarioNuevo from './views/UsuarioNuevo.vue'
 import UsuarioEditar from './views/UsuarioEditar.vue'
 import Calificacion from './views/Calificacion.vue'
 import CalFichaIdentificacion from './views/calFichaIdentificacion.vue'
 import CalFichaRespuestas from './views/calFichaRespuestas.vue'
+import ProcesoAdmision from './views/ProcesoAdmision.vue'
+import Postulantes from './views/Postulantes.vue'
 
 
 const routes = [
@@ -29,6 +31,11 @@ const routes = [
     path: '/distribucionAulas',
     name: 'V-DistribucionAulas',
     component: DistribucionAulas,
+  },
+  {
+    path: '/postulantes',
+    name: 'V-Postulantes',
+    component: Postulantes,
   },
   {
     path: '/usuarios',
@@ -59,6 +66,11 @@ const routes = [
     path: '/Calificacion/FichaRespuestas',
     name: 'V-CalFichaRespuestas',
     component: CalFichaRespuestas,
+  },
+  {
+    path: '/ProcesoAdmision',
+    name: 'V-ProcesoAdmision',
+    component: ProcesoAdmision,
   },
 ]
 

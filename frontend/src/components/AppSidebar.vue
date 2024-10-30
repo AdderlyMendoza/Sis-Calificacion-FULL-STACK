@@ -50,17 +50,44 @@
           <span class="mx-4">Usuarios</span>
         </router-link>
 
-        <!-- Distribucion de aulas -->
+        <!-- Procesos Admision -->
         <router-link class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'DistribucionAulas' ? activeClass : inactiveClass]" to="/DistribucionAulas">
+          :class="[$route.name === 'ProcesoAdmision' ? activeClass : inactiveClass]" to="/ProcesoAdmision">
           <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 10C2 5.58172 5.58172 2 10 2V10H18C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10Z"
               fill="currentColor" />
             <path d="M12 2.25195C14.8113 2.97552 17.0245 5.18877 17.748 8.00004H12V2.25195Z" fill="currentColor" />
           </svg>
 
-          <span class="mx-4">Distribución de aulas</span>
+          <span class="mx-4">Procesos de Admision</span>
         </router-link>
+
+        <!-- Distribucion de aulas -->
+        <div class="flex flex-col">
+          <span class="m-4 text-blue-100 font-semibold">Distribución de Aulas</span>
+
+          <router-link class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+            :class="[$route.name === 'Postulantes' ? activeClass : inactiveClass]" to="/Postulantes">
+            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10C2 5.58172 5.58172 2 10 2V10H18C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10Z"
+                fill="currentColor" />
+              <path d="M12 2.25195C14.8113 2.97552 17.0245 5.18877 17.748 8.00004H12V2.25195Z" fill="currentColor" />
+            </svg>
+
+            <span class="mx-4">Subir Postulantes</span>
+          </router-link>
+
+          <router-link class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+            :class="[$route.name === 'DistribucionAulas' ? activeClass : inactiveClass]" to="/DistribucionAulas">
+            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10C2 5.58172 5.58172 2 10 2V10H18C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10Z"
+                fill="currentColor" />
+              <path d="M12 2.25195C14.8113 2.97552 17.0245 5.18877 17.748 8.00004H12V2.25195Z" fill="currentColor" />
+            </svg>
+
+            <span class="mx-4">Distribuir Aulas</span>
+          </router-link>
+        </div>
 
         <!-- Calificar -->
         <div class="flex flex-col">
