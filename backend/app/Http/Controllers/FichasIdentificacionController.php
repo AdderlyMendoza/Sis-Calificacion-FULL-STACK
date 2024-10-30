@@ -46,7 +46,6 @@ class FichasIdentificacionController extends Controller
     }
 
 
-
     public function frIdPostulantes(Request $request)
     {
         Log::info($request->all());
@@ -151,13 +150,6 @@ class FichasIdentificacionController extends Controller
         return !is_null($camp1) && !is_null($camp3) && !is_null($dni);
     }
 
-    // public function listarArchivos()
-    // {
-    //     $files = Storage::files('fichasIdentificacion');
-    //     $fileNames = array_map('basename', $files); // Extraer solo los nombres de los archivos
-
-    //     return response()->json($fileNames);
-    // }
 
     public function listarArchivos(Request $request)
     {
@@ -177,4 +169,6 @@ class FichasIdentificacionController extends Controller
 
         return response()->json($paginator);
     }
+
+
 }

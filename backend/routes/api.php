@@ -67,9 +67,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Ficha respuestas
     Route::post('/fr-resp-postulantes', [FichasRespuestasController::class, 'frRespPostulantes']);
+    Route::get('/datosFichaRespuestas', [FichasRespuestasController::class, 'datosRespuestas']);
+    Route::get('/listarFichasRespuestas', [FichasRespuestasController::class, 'listarArchivos']);
     Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
     Route::post('/fr-out-resultados/{tipo}', [CalificacionController::class, 'exportarResultados']);
-    
-
-
 });

@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\FichasRespuestas;
 use App\Models\Ponderacion;
+use App\Models\FichasIdentificacion;
 use App\Models\RespuestasCorrectas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+
 
 
 class FichasRespuestasController extends Controller
@@ -14,7 +19,7 @@ class FichasRespuestasController extends Controller
     /**
      * Display a listing of the resource.
      */
-    
+
 
     public function frRespPostulantes(Request $request)
     {
@@ -40,13 +45,19 @@ class FichasRespuestasController extends Controller
      */
     private function procesarFile($file)
     {
-        $filePath = $file->store('fichasRespuestas');
-        $data = file_get_contents(storage_path('app/' . $filePath)); // almacenar
+        // Obtener el nombre original del archivo
+        $originalName = $file->getClientOriginalName();
 
-        // Log::info("Contenido del archivo:", [$data]);
+        // Definir la ruta donde quieres almacenar el archivo
+        $destinationPath = storage_path('app/fichasRespuestas');
+
+        // Mover el archivo al directorio deseado con su nombre original
+        $file->move($destinationPath, $originalName);
+
+        // Leer el contenido del archivo
+        $data = file_get_contents($destinationPath . '/' . $originalName);
 
         $lines = explode("\n", $data);
-        // Log::info("Líneas extraídas:", ['count' => count($lines)]);
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
@@ -169,5 +180,59 @@ class FichasRespuestasController extends Controller
 
         // Retornamos el puntaje total calculado
         return $puntaje;
+    }
+
+
+    public function datosRespuestas(Request $request)
+    {
+        // Número de elementos por página, valor por defecto es 5
+        $perPage = $request->input('per_page', 5);
+
+        // Obtener los datos de FichasRespuestas
+        $datos = FichasRespuestas::paginate($perPage);
+
+        // Obtener todos los lithos de FichasRespuestas
+        $lithos = $datos->pluck('litho')->unique();
+
+        // Obtener solo los DNI y tipo de FichasIdentificacion que correspondan a los lithos
+        $postulantes = FichasIdentificacion::whereIn('litho', $lithos)
+            ->get(['dni', 'tipo', 'litho']) // Obtener solo dni, tipo y litho
+            ->keyBy('litho'); // Usa 'litho' como clave
+
+        // Agregar los datos del postulante a cada dato de FichasRespuestas
+        foreach ($datos as $item) {
+            // Solo asignar si el litho existe en postulantes
+            if (isset($postulantes[$item->litho])) {
+                $item->dni_identificacion = $postulantes[$item->litho]->dni; // Asignar DNI
+                $item->tipo_identificacion = $postulantes[$item->litho]->tipo; // Asignar TIPO
+            } else {
+                $item->dni_identificacion = null; // Si no hay coincidencia, asignar null
+                $item->tipo_identificacion = null; // Si no hay coincidencia, asignar null
+            }
+        }
+
+        Log::info('Datos de identificación:', $datos->toArray());
+
+        return response()->json($datos);
+    }
+
+
+    public function listarArchivos(Request $request)
+    {
+        $files = Storage::files('fichasRespuestas');
+        $fileNames = array_map('basename', $files); // Extraer solo los nombres de los archivos
+
+        // Obtener los parámetros de paginación
+        $currentPage = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10); // Número de elementos por página
+
+        // Crear una instancia de LengthAwarePaginator
+        $currentItems = array_slice($fileNames, ($currentPage - 1) * $perPage, $perPage);
+        $paginator = new LengthAwarePaginator($currentItems, count($fileNames), $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return response()->json($paginator);
     }
 }
