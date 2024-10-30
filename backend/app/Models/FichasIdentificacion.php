@@ -20,4 +20,9 @@ class FichasIdentificacion extends Model
         'tipo',
         'aula'
     ];
+
+    public function proceso()
+    {
+        return $this->belongsTo(ProcesoAdmision::class, 'id_proceso');
+    }
 }

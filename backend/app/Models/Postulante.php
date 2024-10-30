@@ -13,12 +13,17 @@ class Postulante extends Model
         'dni',
         'nombre',
         'paterno',
-        'materno',              
-        'ubigeo',    
-        'colegio',    
-        'celular',    
-        'email',    
-        'carrera',    
-        'codigo',    
+        'materno',
+        'ubigeo',
+        'colegio',
+        'celular',
+        'email',
+        'carrera',
+        'codigo',
     ];
+
+    public function proceso()
+    {
+        return $this->belongsTo(ProcesoAdmision::class, 'id_proceso');
+    }
 }

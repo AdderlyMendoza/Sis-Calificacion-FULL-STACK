@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('litho'); 
             $table->string('tipo'); 
             $table->string('respuestas'); 
+            $table->foreignId('id_proceso')->constrained('procesos_admision')->onDelete('cascade');
             $table->timestamps();
         });
     }

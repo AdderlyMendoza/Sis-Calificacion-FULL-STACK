@@ -19,4 +19,9 @@ class FichasRespuestas extends Model
         'respuestas',
         'puntaje'
     ];
+
+    public function proceso()
+    {
+        return $this->belongsTo(ProcesoAdmision::class, 'id_proceso');
+    }
 }

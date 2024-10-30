@@ -50,15 +50,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users', [UserController::class, 'create']);
     Route::put('/users/{id}', [UserController::class, 'update']);
 
-    // POSTULANTES
+    // ################################################  DISTRIBUCION DE AULAS  ################################################
+    // Postulantes
     Route::get('/postulantes', [PostulanteController::class, 'index']);
     Route::post('/upload-excel', [PostulanteController::class, 'uploadExcel']);
 
-    // DISTRIBUCION DE AULAS
+    // Distribucion de aulas
     Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
     Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
 
-    ///////////////////////////////  CALIFICACION  ///////////////////////////////
+    // #####################################################  CALIFICACION  #####################################################
     // Ficha postulante
     Route::post('/fr-id-postulantes', [FichasIdentificacionController::class, 'frIdPostulantes']);
     Route::get('/datosFichaIdentificacion', [FichasIdentificacionController::class, 'datosIdentificacion']);

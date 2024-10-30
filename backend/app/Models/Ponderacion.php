@@ -24,4 +24,10 @@ class Ponderacion extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+    public function proceso()
+    {
+        return $this->belongsTo(ProcesoAdmision::class, 'id_proceso');
+    }
+    
 }
