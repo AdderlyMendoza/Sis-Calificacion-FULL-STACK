@@ -12,7 +12,10 @@ class ProcesoAdmisionController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todos los usuarios
+        $procesosAdmision = ProcesoAdmision::orderBy('id', 'desc')->get();
+
+        return response()->json($procesosAdmision);
     }
 
     /**
@@ -62,6 +65,4 @@ class ProcesoAdmisionController extends Controller
     {
         //
     }
-
-    
 }

@@ -23,6 +23,9 @@ class DatabaseSeeder extends Seeder
             'apellido_materno' => 'Nina',
         ]);
 
+        // Llamar al seeder de Procesos
+        $this->call(ProcesoAdmisionSeeder::class);
+
         // Llamar al seeder de Areas
         $this->call(AreasSeeder::class);
 

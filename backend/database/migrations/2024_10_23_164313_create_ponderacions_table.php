@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('cantidadPreguntas');
             $table->decimal('ponderacion', 7, 3);
             $table->foreignId('area_id')->constrained('areas')->onDelete('cascade');
-            $table->foreignId('id_proceso')->constrained('procesos_admision')->onDelete('cascade');
+            $table->foreignId('id_proceso')->constrained('proceso_admisions')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostulanteController;
+use App\Http\Controllers\ProcesoAdmisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::post('/users', [UserController::class, 'create']);
     Route::put('/users/{id}', [UserController::class, 'update']);
+
+    // #################################################  PROCESOS DE ADMISION  ################################################
+    Route::get('/procesosAdmision', [ProcesoAdmisionController::class, 'index']);
+
+
 
     // ################################################  DISTRIBUCION DE AULAS  ################################################
     // Postulantes

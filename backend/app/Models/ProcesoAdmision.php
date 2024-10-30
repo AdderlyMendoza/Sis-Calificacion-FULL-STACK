@@ -38,4 +38,6 @@ class ProcesoAdmision extends Model
     {
         return $this->hasMany(Ponderacion::class);
     }
+
+    
 }

@@ -160,4 +160,7 @@ class PostulanteController extends Controller
             'codigosGenerados' => $codigosGenerados,
         ], 200);
     }
+
+
+    
 }
