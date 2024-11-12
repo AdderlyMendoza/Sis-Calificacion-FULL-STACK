@@ -89,8 +89,10 @@ class FichasRespuestasController extends Controller
 
         // Asignar un valor predeterminado para id_archivo
         $id_archivo = "no se xd";
+        Log::info("DATOS PARA:", [$litho]);
 
-        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, 2); // 1 = CAMBIAR: ingenierias
+        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, 3); // 3 = sociales
+
 
         // Validar datos antes de guardar
         if ($this->validarData($camp1, $camp2, $camp3)) {
@@ -104,6 +106,7 @@ class FichasRespuestasController extends Controller
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
                 'puntaje' => $puntaje,
+                'id_proceso' => 1,
             ]);
         } else {
             Log::warning('Datos inválidos, no se guardaron:', [
@@ -116,6 +119,7 @@ class FichasRespuestasController extends Controller
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
                 'puntaje' => "puntaje",
+                'id_proceso' => 1,
             ]);
         }
     }
@@ -160,21 +164,26 @@ class FichasRespuestasController extends Controller
         }
 
         // Determinamos la longitud mínima entre la respuesta y las respuestas fijas
-        $length = min(strlen($respuesta), strlen($respuestasFijas));
+        $length = 60; # cantidad de PREGUNTAS
         $recorrerPonderacion = 0; // Contador para recorrer la ponderación
+        Log::info("TODAS LAS PONDERACIONS:", ['ponderaciones' => $ponderacionCalificar]);
 
         // Iteramos sobre las respuestas
         for ($i = 0; $i < $length; $i++) {
+            $ponderacionActual = (float)$ponderacionCalificar[$i];
+
+
             if ($respuesta[$i] === $respuestasFijas[$i]) {
-                $ponderacionActual = (float)$ponderacionCalificar[$recorrerPonderacion];
+                // $ponderacionActual = (float)$ponderacionCalificar[$recorrerPonderacion];
+                Log::info("INDICE:", [$i]);
+
                 Log::info("ponderacionActual:", ['valor' => $ponderacionActual]);
 
-                $puntaje = $puntaje + (10 * $ponderacionActual);
 
-                // Aumentamos el índice de ponderación si aún queda margen
-                if ($recorrerPonderacion < count($ponderacionCalificar) - 1) {
-                    $recorrerPonderacion++;
-                }
+                $puntaje = $puntaje + (10 * $ponderacionActual);
+                Log::info("puntaje:", [$puntaje]);
+
+
             }
         }
 

@@ -17,5 +17,6 @@ class RespuestasCorrectas extends Model
         'litho',
         'tipo',
         'respuestas',
+        'id_proceso'
     ];
 }

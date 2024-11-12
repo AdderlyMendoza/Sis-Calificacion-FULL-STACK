@@ -66,16 +66,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
 
     // #####################################################  CALIFICACION  #####################################################
-    // Ficha postulante
+    // Ficha identificacion 
     Route::post('/fr-id-postulantes', [FichasIdentificacionController::class, 'frIdPostulantes']);
     Route::get('/datosFichaIdentificacion', [FichasIdentificacionController::class, 'datosIdentificacion']);
     Route::get('/listarFichasIdentificacion', [FichasIdentificacionController::class, 'listarArchivos']);
+
+    // Respuestas correctas
+    Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
+    Route::get('/datosFichaRespuestasCorrectas', [RespuestasCorrectasController::class, 'datosRespuestas']);
+    Route::get('/listarFichasRespuestasCorrectas', [RespuestasCorrectasController::class, 'listarArchivos']);
 
 
     // Ficha respuestas
     Route::post('/fr-resp-postulantes', [FichasRespuestasController::class, 'frRespPostulantes']);
     Route::get('/datosFichaRespuestas', [FichasRespuestasController::class, 'datosRespuestas']);
     Route::get('/listarFichasRespuestas', [FichasRespuestasController::class, 'listarArchivos']);
-    Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
     Route::post('/fr-out-resultados/{tipo}', [CalificacionController::class, 'exportarResultados']);
 });

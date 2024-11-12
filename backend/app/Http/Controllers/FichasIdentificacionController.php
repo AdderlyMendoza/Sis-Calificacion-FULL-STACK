@@ -129,6 +129,7 @@ class FichasIdentificacionController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'aula' => $aula,
+                'id_proceso' => 1,
             ]);
         } else {
             Log::warning('Datos inválidos, no se guardaron:', [
@@ -141,6 +142,7 @@ class FichasIdentificacionController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'aula' => $aula,
+                'id_proceso' => 1,
             ]);
         }
     }

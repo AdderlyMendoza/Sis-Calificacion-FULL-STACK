@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
+        // USUARIO
         User::factory()->create([
             'name' => 'Adderly',
             'email' => 'example@example.com',
@@ -28,6 +29,15 @@ class DatabaseSeeder extends Seeder
 
         // Llamar al seeder de Areas
         $this->call(AreasSeeder::class);
+
+        // Llamar al seeder de Facultades
+        $this->call(FacultadesSeeder::class);
+        
+        // Llamar al seeder de Programa de Estudios
+        $this->call(ProgramaEstudiosSeeder::class);
+
+        // Llamar al seeder de Vacantes
+        $this->call(VacantesSeeder::class);
 
         // Llamar al seeder de Ponderacion
         $this->call(PonderacionSeeder::class);

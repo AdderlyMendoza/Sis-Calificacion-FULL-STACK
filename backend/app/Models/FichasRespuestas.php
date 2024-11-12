@@ -17,7 +17,8 @@ class FichasRespuestas extends Model
         'litho',
         'tipo',
         'respuestas',
-        'puntaje'
+        'puntaje',
+        'id_proceso'
     ];
 
     public function proceso()

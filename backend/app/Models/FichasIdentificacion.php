@@ -18,7 +18,8 @@ class FichasIdentificacion extends Model
         'id_archivo',
         'litho',
         'tipo',
-        'aula'
+        'aula',
+        'id_proceso'
     ];
 
     public function proceso()

@@ -172,6 +172,10 @@ return [
         //excel 
         // Maatwebsite\Excel\ExcelServiceProvider::class,
 
+        //pdf
+        Barryvdh\DomPDF\ServiceProvider::class,
+
+
     ])->toArray(),
 
     /*

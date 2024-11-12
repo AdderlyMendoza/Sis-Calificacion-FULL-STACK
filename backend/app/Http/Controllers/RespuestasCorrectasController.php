@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\RespuestasCorrectas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class RespuestasCorrectasController extends Controller
 {
@@ -32,13 +35,19 @@ class RespuestasCorrectasController extends Controller
      */
     private function procesarFile($file)
     {
-        $filePath = $file->store('fichasRespuestas');
-        $data = file_get_contents(storage_path('app/' . $filePath)); // almacenar
+        // Obtener el nombre original del archivo
+        $originalName = $file->getClientOriginalName();
 
-        // Log::info("Contenido del archivo:", [$data]);
+        // Definir la ruta donde quieres almacenar el archivo
+        $destinationPath = storage_path('app/fichasRespuestasCorrectas');
+
+        // Mover el archivo al directorio deseado con su nombre original
+        $file->move($destinationPath, $originalName);
+
+        // Leer el contenido del archivo
+        $data = file_get_contents($destinationPath . '/' . $originalName);
 
         $lines = explode("\n", $data);
-        // Log::info("Líneas extraídas:", ['count' => count($lines)]);
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
@@ -83,6 +92,7 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
+                'id_proceso' => 1
             ]);
         } else {
             Log::warning('Datos inválidos, no se guardaron:', [
@@ -94,6 +104,7 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
+                'id_proceso' => 1
             ]);
         }
     }
@@ -102,4 +113,43 @@ class RespuestasCorrectasController extends Controller
     {
         return !is_null($camp1) && !is_null($camp3) && !is_null($dni);
     }
+
+    public function datosRespuestas(Request $request)
+    {
+        // Número de elementos por página, valor por defecto es 5
+        $perPage = $request->input('per_page', 5);
+
+        // Obtener los datos de FichasRespuestas
+        $datos = RespuestasCorrectas::paginate($perPage);
+
+        // Obtener todos los lithos de FichasRespuestasCorrectas
+        $lithos = $datos->pluck('litho')->unique();
+
+
+        Log::info('Datos de Ficha Respuestas Correctas:', $datos->toArray());
+
+        return response()->json($datos);
+    }
+
+
+    public function listarArchivos(Request $request)
+    {
+        $files = Storage::files('fichasRespuestasCorrectas');
+        $fileNames = array_map('basename', $files); // Extraer solo los nombres de los archivos
+
+        // Obtener los parámetros de paginación
+        $currentPage = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10); // Número de elementos por página
+
+        // Crear una instancia de LengthAwarePaginator
+        $currentItems = array_slice($fileNames, ($currentPage - 1) * $perPage, $perPage);
+        $paginator = new LengthAwarePaginator($currentItems, count($fileNames), $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return response()->json($paginator);
+    }
+
+
 }
