@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="text-3xl font-medium text-gray-700">FICHAS DE RESPUESTAS</h3>
+        <h3 class="text-3xl font-medium text-gray-700">FICHAS DE RESPUESTAS CORRECTAS</h3>
 
         <!-- Respuestas correctas -->
         <div class="flex flex-col mt-8">
@@ -21,32 +21,6 @@
                         <div class="mt-4">
                             <p v-if="message.rptc" class="text-green-500">{{ message.rptc }}</p>
                             <p v-if="error.rptc" class="text-red-500">{{ error.rptc }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Subir fichas de respuestas -->
-        <div class="flex flex-col mt-8">
-            <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                <div
-                    class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-                    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
-                        <h1>Subir Fichas de Respuestas</h1>
-                        <form @submit.prevent="subirRptPostulantes" class="mt-4 flex items-center">
-                            <input type="file" @change="cargaDeFile('rptp')" multiple
-                                aria-label="Subir Fichas de Respuestas"
-                                class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300" />
-                            <button type="submit"
-                                class="ml-4 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                                Subir
-                            </button>
-                        </form>
-                        <div class="mt-4">
-                            <p v-if="message.rptp" class="text-green-500">{{ message.rptp }}</p>
-                            <p v-if="error.rptp" class="text-red-500">{{ error.rptp }}</p>
                         </div>
                     </div>
                 </div>
@@ -76,17 +50,16 @@
 
                         <!-- Sección de Datos -->
                         <div v-if="activo === 'div1'" class="p-4">
-                            <h2 class="font-bold mb-4">DATOS DE LAS FICHAS DE RESPUESTAS Y ERRORES</h2>
+                            <h2 class="font-bold mb-4">DATOS DE LAS FICHAS DE RESPUESTAS CORRECTAS</h2>
                             <table
                                 class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
                                 <thead class="bg-gray-100">
                                     <tr>
                                         <th class="py-2 px-4 border-b text-left">N°</th>
-                                        <th class="py-2 px-4 border-b text-left">DNI</th>
+                                        <th class="py-2 px-4 border-b text-left">AREA</th>
                                         <th class="py-2 px-4 border-b text-left">LITHO</th>
                                         <th class="py-2 px-4 border-b text-left">TIPO</th>
                                         <th class="py-2 px-4 border-b text-left">RESPUESTAS</th>
-                                        <th class="py-2 px-4 border-b text-left">ERRORES</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,17 +70,10 @@
                                     <tr v-for="(item, i) in datos" :key="item.id">
                                         <td class="py-2 px-4 border-b text-left">{{ (currentPageDatos - 1) * perPage +
                                             (i + 1) }}</td>
-                                        <td class="py-2 px-4 border-b text-left">{{ item.dni_identificacion }}</td>
+                                        <td class="py-2 px-4 border-b text-left">AREA</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.litho }}</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.tipo }}</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.respuestas }}</td>
-                                        <td class="py-2 px-4 border-b text-center">
-                                            <div v-if="item.tipo !== item.tipo_identificacion"
-                                                class="rounded border border-red-400 bg-red-100 p-1 text-red-700 mx-1 text-xs">
-                                                <strong class="font-bold">TIPO</strong>
-                                                <!-- <p class="text-xs">R: {{ item.tipo }}, I: {{ item.tipo_identificacion }}</p> -->
-                                            </div>
-                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -128,7 +94,7 @@
 
                         <!-- Sección de Archivos -->
                         <div v-if="activo === 'div2'" class="p-4">
-                            <h2 class="font-bold mb-4">ARCHIVOS DE LAS FICHAS DE IDENTIFICACIÓN</h2>
+                            <h2 class="font-bold mb-4">ARCHIVOS DE LAS FICHAS DE RESPUESTAS CORRECTAS</h2>
                             <table
                                 class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
                                 <thead class="bg-gray-100">
@@ -180,48 +146,6 @@
         </div>
 
 
-        <!-- Exportar resultados de calificacion -->
-        <div class="flex flex-col mt-8">
-            <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                <div
-                    class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                        <h1 class="text-xl font-semibold text-gray-800">Exportar Resultados</h1>
-                        <div class="mt-4 flex space-x-4">
-                            <button @click="exportarDatos('excel')"
-                                class="flex items-center bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v8m0 0l-4-4m4 4l4-4M4 6h16M4 10h16M4 14h16M4 18h16M4 22h16"></path>
-                                </svg>
-                                Excel
-                            </button>
-                            <button @click="exportarDatos('pdf')"
-                                class="flex items-center bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v8m0 0l-4-4m4 4l4-4M4 6h16M4 10h16M4 14h16M4 18h16M4 22h16"></path>
-                                </svg>
-                                PDF
-                            </button>
-                            <button @click="exportarDatos('txt')"
-                                class="flex items-center bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 transition duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v8m0 0l-4-4m4 4l4-4M4 6h16M4 10h16M4 14h16M4 18h16M4 22h16"></path>
-                                </svg>
-                                TXT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 </template>
 
@@ -229,7 +153,7 @@
     import axios from 'axios';
 
     export default {
-        name: 'V-CalFichaRespuestas',
+        name: 'V-CalFichaRespuestasCorrectas',
         data() {
             return {
                 activo: 'div1',
@@ -267,20 +191,6 @@
             cargaDeFile(type) {
                 this.files[type] = Array.from(event.target.files);
             },
-            async subirRptPostulantes() {
-                const formData = this.createFormData(this.files.rptp);
-                try {
-                    await axios.post('http://localhost:8000/api/fr-resp-postulantes', formData, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    });
-                    this.setMessage('rptp', 'Archivos cargados con éxito');
-                } catch (error) {
-                    this.setError('rptp', error);
-                }
-            },
             async subirRptCorrectas() {
                 const formData = this.createFormData(this.files.rptc);
                 try {
@@ -315,53 +225,6 @@
                 this.error[type] = error.response?.data?.message || 'Error en la carga de archivos';
                 this.message[type] = '';
             },
-            async exportarDatos(tipo) {
-                try {
-                    const response = await axios.post(`http://localhost:8000/api/fr-out-resultados/${tipo}`, null, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        },
-                        responseType: 'blob',
-                    });
-
-                    // Determinar la extensión del archivo basándonos en el tipo
-                    let extension = '';
-                    let fileName = '';
-
-                    switch (tipo) {
-                        case 'pdf':
-                            extension = 'pdf';
-                            fileName = 'resultados.pdf'; // Nombre del archivo PDF
-                            break;
-                        case 'txt':
-                            extension = 'txt';
-                            fileName = 'resultados.txt'; // Nombre del archivo TXT
-                            break;
-                        case 'excel':
-                            extension = 'xlsx';
-                            fileName = 'resultados.xlsx'; // Nombre del archivo Excel
-                            break;
-                        default:
-                            extension = tipo; // En caso de que haya otros tipos de archivo, usamos el tipo proporcionado
-                            fileName = `resultados.${extension}`;  // Asigna un nombre genérico
-                    }
-
-                    // Crear un enlace para descargar el archivo
-                    const url = window.URL.createObjectURL(new Blob([response.data]));
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.setAttribute('download', fileName);  // Usar el nombre del archivo con la extensión correcta
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();  // Limpiar el DOM
-                    window.URL.revokeObjectURL(url);  // Liberar memoria
-
-                    console.log('Archivo exportado con éxito', response.data); // Manejar la respuesta aquí
-                } catch (error) {
-                    console.error('Error al exportar el archivo:', error); // Mensaje de error
-                }
-            },
-
             mostrarDiv(div) {
                 this.activo = div;
             },
@@ -370,7 +233,7 @@
             async obtenerDatos() {
                 this.isLoading = true; // Start loading
                 try {
-                    const response = await axios.get(`http://localhost:8000/api/datosFichaRespuestas?per_page=${this.perPage}&page=${this.currentPageDatos}`, {
+                    const response = await axios.get(`http://localhost:8000/api/datosFichaRespuestasCorrectas?per_page=${this.perPage}&page=${this.currentPageDatos}`, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         },
@@ -391,7 +254,7 @@
             async obtenerArchivos() {
                 this.isLoading = true;
                 try {
-                    const response = await axios.get(`http://localhost:8000/api/listarFichasRespuestas?per_page=${this.perPage}&page=${this.currentPageArchivos}`, {
+                    const response = await axios.get(`http://localhost:8000/api/listarFichasRespuestasCorrectas?per_page=${this.perPage}&page=${this.currentPageArchivos}`, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         },
