@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('tipo'); 
             $table->string('respuestas'); 
             $table->string('puntaje'); 
+            // falta area_id
             $table->foreignId('id_proceso')->constrained('proceso_admisions')->onDelete('cascade');
             $table->timestamps();
         });

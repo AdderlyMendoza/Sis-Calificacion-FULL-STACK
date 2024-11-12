@@ -92,7 +92,8 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
-                'id_proceso' => 1
+                'area_id' => 3, // sociales
+                'id_proceso' => 1, // 1er proceso
             ]);
         } else {
             Log::warning('Datos inválidos, no se guardaron:', [
@@ -104,7 +105,8 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
-                'id_proceso' => 1
+                'area_id' => 3, // sociales
+                'id_proceso' => 1, // 1er proceso
             ]);
         }
     }

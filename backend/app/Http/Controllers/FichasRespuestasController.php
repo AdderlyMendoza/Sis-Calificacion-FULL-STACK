@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -20,6 +20,8 @@ class FichasRespuestasController extends Controller
      * Display a listing of the resource.
      */
 
+
+    ///////////////////////////////////////////////////////// SUBIDA DE ARCHIVOS Y GUARDADO DE DATOS EN LA DB ///////////////////////////////////////////
 
     public function frRespPostulantes(Request $request)
     {
@@ -106,6 +108,7 @@ class FichasRespuestasController extends Controller
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
                 'puntaje' => $puntaje,
+                // falta area_id
                 'id_proceso' => 1,
             ]);
         } else {
@@ -118,7 +121,8 @@ class FichasRespuestasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
-                'puntaje' => "puntaje",
+                'puntaje' => $puntaje,
+                // falta area_id
                 'id_proceso' => 1,
             ]);
         }
@@ -128,6 +132,8 @@ class FichasRespuestasController extends Controller
     {
         return !is_null($camp1) && !is_null($camp3) && !is_null($dni);
     }
+
+    /////////////////////////////////////////////////////////////// OBTENER PUNTAJE DE POSTULANTE ////////////////////////////////////////////////////////
 
     private function obtenerPuntaje($respuesta, $tipo, $areaId) // respuestas, tipo de examen y área
     {
@@ -182,8 +188,6 @@ class FichasRespuestasController extends Controller
 
                 $puntaje = $puntaje + (10 * $ponderacionActual);
                 Log::info("puntaje:", [$puntaje]);
-
-
             }
         }
 
@@ -191,6 +195,7 @@ class FichasRespuestasController extends Controller
         return $puntaje;
     }
 
+    /////////////////////////////////////////////////////////////////// LISTADO DE DATOS Y ARCHIVOS ///////////////////////////////////////////////////////
 
     public function datosRespuestas(Request $request)
     {
@@ -205,26 +210,23 @@ class FichasRespuestasController extends Controller
 
         // Obtener solo los DNI y tipo de FichasIdentificacion que correspondan a los lithos
         $postulantes = FichasIdentificacion::whereIn('litho', $lithos)
-            ->get(['dni', 'tipo', 'litho']) // Obtener solo dni, tipo y litho
+            ->get(['tipo', 'litho']) // Obtener solo dni, tipo y litho
             ->keyBy('litho'); // Usa 'litho' como clave
 
         // Agregar los datos del postulante a cada dato de FichasRespuestas
         foreach ($datos as $item) {
             // Solo asignar si el litho existe en postulantes
             if (isset($postulantes[$item->litho])) {
-                $item->dni_identificacion = $postulantes[$item->litho]->dni; // Asignar DNI
                 $item->tipo_identificacion = $postulantes[$item->litho]->tipo; // Asignar TIPO
             } else {
-                $item->dni_identificacion = null; // Si no hay coincidencia, asignar null
                 $item->tipo_identificacion = null; // Si no hay coincidencia, asignar null
             }
         }
 
-        Log::info('Datos de identificación:', $datos->toArray());
+        Log::info('Datos de ficha de respuestas:', $datos->toArray());
 
         return response()->json($datos);
     }
-
 
     public function listarArchivos(Request $request)
     {
@@ -243,5 +245,79 @@ class FichasRespuestasController extends Controller
         ]);
 
         return response()->json($paginator);
+    }
+
+    ///////////////////////////////////////////////////////////////////// EXPORTACIÓN DE ERRORES ///////////////////////////////////////////////////////////
+
+    public function exportarErroresFichResp()
+    {
+        // Obtener los datos de FichasRespuestas
+        $allDatos = FichasRespuestas::all();
+
+        // Obtener todos los lithos de FichasRespuestas
+        $lithos = $allDatos->pluck('litho')->unique();
+
+        // Obtener solo tipo de FichasIdentificacion que correspondan a los lithos
+        $postulantes = FichasIdentificacion::whereIn('litho', $lithos)
+            ->get(['tipo', 'litho']) // Obtener solo dni, tipo y litho
+            ->keyBy('litho'); // Usa 'litho' como clave
+
+
+        foreach ($allDatos as $item) {
+            if (isset($postulantes[$item->litho])) {
+                $item->tipo_identificacion = $postulantes[$item->litho]->tipo; 
+            } else {
+                $item->tipo_identificacion = null; 
+            }
+        }
+
+        $datos = [];
+        Log::info('exportarErroresFichResp');
+        foreach ($allDatos as $dato) {
+            // Log::info('Datos de errores:', [$dato]);
+            if($dato->tipo != $dato->tipo_identificacion){
+                $datos[] = $dato;
+            }
+        }
+
+        // Generar el HTML que queremos convertir a PDF
+        $html = '
+        <h1 style="text-align:center;">Errores de las Fichas de Respuestas</h1>
+        <hr>
+        <table width="100%" cellspacing="0" cellpadding="10" border="1">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">Nº</th>
+                    <th style="text-align:left;">DNI</th>
+                    <th style="text-align:left;">Apellidos y Nombres</th>
+                    <th style="text-align:left;">Carrera</th>
+                    <th style="text-align:left;">Error</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+        foreach ($datos as $index => $resultado) {
+            $puesto = $index + 1; // Poner el puesto comenzando desde 1
+            $nombreCompleto = trim($resultado['apPaterno'] . ' ' . $resultado['apMaterno'] . ', ' . $resultado['nombre']);
+
+            $html .= '
+            <tr>
+                <td>' . $puesto . '</td>
+                <td>' . $resultado['dni'] . '</td>
+                <td>' . $nombreCompleto . '</td>
+                <td>' . $resultado['carrera'] . '</td>
+                <td>' . "DNI" . '</td>
+            </tr>';
+        }
+
+        $html .= '
+            </tbody>
+        </table>';
+
+        // Generar el PDF con Dompdf
+        $pdf = Pdf::loadHTML($html);
+
+        // Descargar el PDF
+        return $pdf->download('erroresFichaRespuestas.pdf');
     }
 }

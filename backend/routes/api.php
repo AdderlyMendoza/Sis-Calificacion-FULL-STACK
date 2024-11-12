@@ -70,7 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/fr-id-postulantes', [FichasIdentificacionController::class, 'frIdPostulantes']);
     Route::get('/datosFichaIdentificacion', [FichasIdentificacionController::class, 'datosIdentificacion']);
     Route::get('/listarFichasIdentificacion', [FichasIdentificacionController::class, 'listarArchivos']);
+    Route::post('/fr-out-identificacionErrores', [FichasIdentificacionController::class, 'exportarErroresFichIden']);
 
+    
     // Respuestas correctas
     Route::post('/fr-resp-correctas', [RespuestasCorrectasController::class, 'frRespCorrectas']);
     Route::get('/datosFichaRespuestasCorrectas', [RespuestasCorrectasController::class, 'datosRespuestas']);
@@ -82,4 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/datosFichaRespuestas', [FichasRespuestasController::class, 'datosRespuestas']);
     Route::get('/listarFichasRespuestas', [FichasRespuestasController::class, 'listarArchivos']);
     Route::post('/fr-out-resultados/{tipo}', [CalificacionController::class, 'exportarResultados']);
+    Route::post('/fr-out-resultadosErrores', [FichasRespuestasController::class, 'exportarErroresFichResp']);
+
+
 });

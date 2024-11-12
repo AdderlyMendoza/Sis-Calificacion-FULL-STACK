@@ -8,44 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class FichasIdentificacionController extends Controller
 {
-    public function datosIdentificacion(Request $request)
-    {
-        // Número de elementos por página, valor por defecto es 5
-        $perPage = $request->input('per_page', 5);
 
-        // Obtener los datos de FichasIdentificacion
-        $datos = FichasIdentificacion::paginate($perPage);
-
-        // Obtener todos los DNI, aula y tipo en un solo paso
-        $dnis = $datos->pluck('dni')->unique();
-        $aulas = $datos->pluck('aula')->unique();
-        $tipos = $datos->pluck('tipo')->unique();
-
-        // Cargar los postulantes que coinciden con los DNI -> FALTA AULA Y TIPO EN MI BASE DE DATOS XD
-        $postulantes = Postulante::whereIn('dni', $dnis)
-            // ->orWhereIn('aula', $aulas)
-            // ->orWhereIn('tipo', $tipos)
-            ->get()
-            ->keyBy('dni'); // Puedes usar el campo que necesites como clave
-
-        // Agregar los datos del postulante a cada dato
-        foreach ($datos as $item) {
-            $postulante = $postulantes->get($item->dni);
-            $item->dni_postulante = $postulante ? $postulante->dni : null;
-            // $item->aula_postulante = $postulante ? $postulante->aula : null;
-            // $item->tipo_postulante = $postulante ? $postulante->tipo : null;
-        }
-
-        Log::info('Datos de identificación:', $datos->toArray());
-
-        return response()->json($datos);
-    }
-
-
+    ///////////////////////////////////////////////////////// SUBIDA DE ARCHIVOS Y GUARDADO DE DATOS EN LA DB ///////////////////////////////////////////
     public function frIdPostulantes(Request $request)
     {
         Log::info($request->all());
@@ -152,6 +121,39 @@ class FichasIdentificacionController extends Controller
         return !is_null($camp1) && !is_null($camp3) && !is_null($dni);
     }
 
+    /////////////////////////////////////////////////////////////////// LISTADO DE DATOS Y ARCHIVOS ///////////////////////////////////////////////////////
+    public function datosIdentificacion(Request $request)
+    {
+        // Número de elementos por página
+        $perPage = $request->input('per_page', 5);
+
+        // Obtener los datos de FichasIdentificacion
+        $datos = FichasIdentificacion::paginate($perPage);
+
+        // Obtener todos los DNI, aula y tipo en un solo paso
+        $dnis = $datos->pluck('dni')->unique();
+        $aulas = $datos->pluck('aula')->unique();
+        $tipos = $datos->pluck('tipo')->unique();
+
+        // Cargar los postulantes que coinciden con los DNI -> FALTA AULA Y TIPO EN MI BASE DE DATOS XD
+        $postulantes = Postulante::whereIn('dni', $dnis)
+            // ->orWhereIn('aula', $aulas)
+            // ->orWhereIn('tipo', $tipos)
+            ->get()
+            ->keyBy('dni'); // Puedes usar el campo que necesites como clave
+
+        // Agregar los datos del postulante a cada dato
+        foreach ($datos as $item) {
+            $postulante = $postulantes->get($item->dni);
+            $item->dni_postulante = $postulante ? $postulante->dni : null;
+            // $item->aula_postulante = $postulante ? $postulante->aula : null;
+            // $item->tipo_postulante = $postulante ? $postulante->tipo : null;
+        }
+
+        Log::info('Datos de identificación:', $datos->toArray());
+
+        return response()->json($datos);
+    }
 
     public function listarArchivos(Request $request)
     {
@@ -172,5 +174,96 @@ class FichasIdentificacionController extends Controller
         return response()->json($paginator);
     }
 
+    ///////////////////////////////////////////////////////////////////// EXPORTACIÓN DE ERRORES ///////////////////////////////////////////////////////////
+    public function exportarErroresFichIden()
+    {
+        // Obtener los datos de FichasIdentificacion
+        $allDatos = FichasIdentificacion::all();
 
+        // Obtener todos los DNI, aula y tipo en un solo paso
+        $dnis = $allDatos->pluck('dni')->unique();
+        $aulas = $allDatos->pluck('aula')->unique();
+        $tipos = $allDatos->pluck('tipo')->unique();
+
+        // Cargar los postulantes que coinciden con los DNI -> FALTA AULA Y TIPO EN MI BASE DE DATOS XD
+        $postulantes = Postulante::whereIn('dni', $dnis)
+            // ->orWhereIn('aula', $aulas)
+            // ->orWhereIn('tipo', $tipos)
+            ->get()
+            ->keyBy('dni'); // Puedes usar el campo que necesites como clave
+
+        // Agregar los datos del postulante a cada dato
+        foreach ($allDatos as $item) {
+            $postulante = $postulantes->get($item->dni);
+            $item->dni_postulante = $postulante ? $postulante->dni : null;
+            // $item->aula_postulante = $postulante ? $postulante->aula : null;
+            // $item->tipo_postulante = $postulante ? $postulante->tipo : null;
+        }
+
+        $datos = [];
+        Log::info('exportarErroresFichResp');
+        foreach ($allDatos as $dato) {
+            // Log::info('Datos de errores:', [$dato]);
+            if ($dato->dni != $dato->dni_postulante || $dato->aula != $dato->tipo_aula || $dato->tipo != $dato->tipo_identificacion) {
+                $datos[] = $dato;
+            }
+        }
+
+        // Generar el HTML que queremos convertir a PDF
+        $html = '
+        <h1 style="text-align:center;">Errores Examen Simulacro MACUSANI</h1>
+        <hr>
+        <table width="100%" cellspacing="0" cellpadding="10" border="1">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">N</th>
+                    <th style="text-align:left;">DNI</th>
+                    <th style="text-align:left;">Apellidos y Nombres</th>
+                    <th style="text-align:left;">Carrera</th>
+                    <th style="text-align:left;">Errores</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+        foreach ($datos as $index => $resultado) {
+            // ERROR EN EL NOMBRE COMPLETO
+            $puesto = $index + 1; // Poner el puesto comenzando desde 1
+            $nombreCompleto = trim($resultado->apPaterno . ' ' . $resultado->apMaterno . ', ' . $resultado->nombre);
+            Log::info('name complete:', [$nombreCompleto]);
+
+            $html .= '
+                <tr>
+                    <td>' . $puesto . '</td>
+                    <td>' . $resultado->dni . '</td>
+                    <td>' . $nombreCompleto . '</td>
+                    <td>' . $resultado->carrera . '</td>
+                    <td>';
+
+            // Mostrar los errores de acuerdo con las discrepancias
+            if ($resultado->dni != $resultado->dni_postulante) {
+                $html .= 'DNI ';
+            }
+
+            if ($resultado->aula != $resultado->aula_postulante) {
+                $html .= 'AULA ';
+            }
+
+            if ($resultado->tipo != $resultado->tipo_postulante) {
+                $html .= 'TIPO';
+            }
+
+            $html .= '</td></tr>';
+        }
+
+
+        $html .= '
+            </tbody>
+        </table>';
+
+        // Generar el PDF con Dompdf
+        $pdf = Pdf::loadHTML($html);
+
+        // Descargar el PDF
+        return $pdf->download('erroresFichaIdentificacion.pdf');
+    }
 }
