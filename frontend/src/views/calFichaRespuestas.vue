@@ -62,16 +62,23 @@
                     <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
 
                         <!-- Botones para mostrar diferentes secciones -->
-                        <div class="flex space-x-4 mb-4">
-                            <button @click="mostrarDiv('div1')" class="bg-blue-500 text-white px-4 py-2 rounded">
-                                Mostrar Datos
-                            </button>
-                            <button @click="mostrarDiv('div2')" class="bg-green-500 text-white px-4 py-2 rounded">
-                                Mostrar Archivos
-                            </button>
-                            <button @click="mostrarDiv('div3')" class="bg-red-500 text-white px-4 py-2 rounded">
-                                Mostrar Otro
-                            </button>
+                        <div class="flex justify-between">
+                            <div class="flex space-x-4 mb-4">
+                                <button @click="mostrarDiv('div1')" class="bg-blue-500 text-white px-4 py-2 rounded">
+                                    Mostrar Datos
+                                </button>
+                                <button @click="mostrarDiv('div2')" class="bg-green-500 text-white px-4 py-2 rounded">
+                                    Mostrar Archivos
+                                </button>
+                                <button @click="mostrarDiv('div3')" class="bg-red-500 text-white px-4 py-2 rounded">
+                                    Mostrar Otro
+                                </button>
+                            </div>
+                            <div class="text-left">
+                                <button @click="exportarErrores()" class="bg-yellow-500 text-white px-4 py-2 rounded">
+                                    Exportar Errores
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Sección de Datos -->
@@ -415,6 +422,34 @@
                     if (page < 1 || page > this.lastPageArchivos) return;
                     this.currentPageArchivos = page;
                     await this.obtenerArchivos();
+                }
+            },
+
+            ///////////////////////////////////////////////// EXPORTAR ERRORES
+            async exportarErrores() {
+                try {
+                    const response = await axios.post(`http://localhost:8000/api/fr-out-resultadosErrores/`, null, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        },
+                        responseType: 'blob',
+                    });
+
+                    let fileName = 'erroresFichasRespuestas.pdf'; // formato pdf
+
+                    // Crear un enlace para descargar el archivo
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', fileName);  // Usar el nombre del archivo con la extensión correcta
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();  // Limpiar el DOM
+                    window.URL.revokeObjectURL(url);  // Liberar memoria
+
+                    console.log('Archivo de errores exportado con éxito', response.data); // Manejar la respuesta aquí
+                } catch (error) {
+                    console.error('Error al exportar el archivo de errores:', error); // Mensaje de error
                 }
             },
         },
