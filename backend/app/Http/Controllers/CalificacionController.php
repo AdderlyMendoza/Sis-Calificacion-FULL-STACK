@@ -43,7 +43,7 @@ class CalificacionController extends Controller
                         $resultados[] = [
                             'dni' => $dni,
                             'nombre' => $postulante->nombre,
-                            'carrera' => $postulante->carrera,
+                            'carrera' => $postulante->colegio,
                             'apPaterno' => $postulante->paterno,
                             'apMaterno' => $postulante->materno,
                             'puntaje' => optional(FichasRespuestas::where('litho', $litho)->first())->puntaje,
@@ -71,7 +71,6 @@ class CalificacionController extends Controller
 
     public function exportarResultados($tipo)
     {
-        $this->CalificarPorProgramaEstudios();
         Log::warning("Tipo de ARCHIVO A EXPORTAR: ", ['tipo' => $tipo]);
 
         $resultados = $this->traerDatos();
@@ -84,7 +83,7 @@ class CalificacionController extends Controller
                 return $this->exportarExcelPorPrograma($resultados);
             case 'pdf':
                 // Lógica para exportar a PDF
-                return $this->exportarPdfPorPrograma($resultados);
+                return $this->exportarPdfporArea($resultados);
             case 'txt':
                 // Lógica para exportar a TXT
                 return $this->exportarTxt($resultados);
@@ -126,7 +125,7 @@ class CalificacionController extends Controller
     {
         // Generar el HTML que queremos convertir a PDF
         $html = '
-        <h1 style="text-align:center;">Resultados Examen Simulacro MACUSANI</h1>
+        <h1 style="text-align:center;">Resultados Examen Simulacro QUILCAPUNCO - 5to GRADO</h1>
         <hr>
         <table width="100%" cellspacing="0" cellpadding="10" border="1">
             <thead>
@@ -134,7 +133,7 @@ class CalificacionController extends Controller
                     <th style="text-align:left;">Puesto</th>
                     <th style="text-align:left;">DNI</th>
                     <th style="text-align:left;">Apellidos y Nombres</th>
-                    <th style="text-align:left;">Carrera</th>
+                    <th style="text-align:left;">Sección</th>
                     <th style="text-align:right;">Puntaje</th>
                 </tr>
             </thead>

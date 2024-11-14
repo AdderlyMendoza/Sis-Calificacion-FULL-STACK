@@ -175,7 +175,7 @@ class FichasIdentificacionController extends Controller
     }
 
     ///////////////////////////////////////////////////////////////////// EXPORTACIÓN DE ERRORES ///////////////////////////////////////////////////////////
-    public function exportarErroresFichIden()
+    public function exportarErroresFichIdenANTERIOR()
     {
         // Obtener los datos de FichasIdentificacion
         $allDatos = FichasIdentificacion::all();
@@ -202,9 +202,13 @@ class FichasIdentificacionController extends Controller
 
         $datos = [];
         Log::info('exportarErroresFichResp');
+        Log::info('name complete:', [$allDatos]);
+
         foreach ($allDatos as $dato) {
             // Log::info('Datos de errores:', [$dato]);
-            if ($dato->dni != $dato->dni_postulante || $dato->aula != $dato->tipo_aula || $dato->tipo != $dato->tipo_identificacion) {
+            // if ($dato->dni != $dato->dni_postulante || $dato->aula != $dato->tipo_aula || $dato->tipo != $dato->tipo_identificacion) {
+            if ($dato->dni != $dato->dni_postulante) {
+
                 $datos[] = $dato;
             }
         }
@@ -241,16 +245,16 @@ class FichasIdentificacionController extends Controller
 
             // Mostrar los errores de acuerdo con las discrepancias
             if ($resultado->dni != $resultado->dni_postulante) {
-                $html .= 'DNI ';
+                $html .= 'ERROR DNI ';
             }
 
-            if ($resultado->aula != $resultado->aula_postulante) {
-                $html .= 'AULA ';
-            }
+            // if ($resultado->aula != $resultado->aula_postulante) {
+            //     $html .= 'AULA ';
+            // }
 
-            if ($resultado->tipo != $resultado->tipo_postulante) {
-                $html .= 'TIPO';
-            }
+            // if ($resultado->tipo != $resultado->tipo_postulante) {
+            //     $html .= 'TIPO';
+            // }
 
             $html .= '</td></tr>';
         }
@@ -265,5 +269,64 @@ class FichasIdentificacionController extends Controller
 
         // Descargar el PDF
         return $pdf->download('erroresFichaIdentificacion.pdf');
+    }
+
+    public function exportarErroresFichIden()
+    {
+        // Obtener todos los datos de FichasIdentificacion
+        $fichasDatos = FichasIdentificacion::all();
+
+        // Obtener todos los DNI únicos de las fichas
+        $dnisFichas = $fichasDatos->pluck('dni')->unique();
+
+        // Cargar los postulantes que NO tienen ficha de identificación usando los DNI
+        $postulantesSinFicha = Postulante::whereNotIn('dni', $dnisFichas)
+            ->get(['dni', 'nombre', 'paterno', 'materno', 'carrera']); // Obtener también nombres y apellidos
+
+        // Verificar si hay datos para exportar
+        if ($postulantesSinFicha->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron errores'], 200);
+        }
+
+        // Generar el HTML que queremos convertir a PDF
+        $html = '
+        <h1 style="text-align:center;">Errores de las Fichas de Identificacion</h1>
+        <hr>
+        <table width="100%" cellspacing="0" cellpadding="10" border="1">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">N</th>
+                    <th style="text-align:left;">DNI</th>
+                    <th style="text-align:left;">Apellidos y Nombres</th>
+                    <th style="text-align:left;">Carrera</th>
+                    <th style="text-align:left;">Errores</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+        // Generar la tabla con los datos de los postulantes que no tienen ficha
+        foreach ($postulantesSinFicha as $index => $postulante) {
+            $puesto = $index + 1;
+            $nombreCompleto = trim($postulante->paterno . ' ' . $postulante->materno . ', ' . $postulante->nombre);
+
+            $html .= '
+            <tr>
+                <td>' . $puesto . '</td>
+                <td>' . $postulante->dni . '</td>
+                <td>' . $nombreCompleto . '</td>
+                <td>' . $postulante->carrera . '</td>
+                <td>DNI</td>
+            </tr>';
+        }
+
+        $html .= '
+            </tbody>
+        </table>';
+
+        // Generar el PDF con Dompdf
+        $pdf = Pdf::loadHTML($html);
+
+        // Descargar el PDF
+        return $pdf->download('erroresPostulantesSinFicha.pdf');
     }
 }
