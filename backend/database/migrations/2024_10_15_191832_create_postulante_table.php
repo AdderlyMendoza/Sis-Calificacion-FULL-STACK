@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('email')->unique(); // Email único
             $table->string('carrera'); // Carrera a la que postula
             $table->string('codigo')->nullable(); // Permitir nulos en la columna codigo
+            $table->string('tipo')->nullable(); // Permitir nulos en la columna codigo
+            $table->string('aula')->nullable(); // Permitir nulos en la columna codigo
             $table->timestamps(); // Timestamps para created_at y updated_at
         });
     }

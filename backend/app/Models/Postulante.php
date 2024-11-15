@@ -20,6 +20,8 @@ class Postulante extends Model
         'email',
         'carrera',
         'codigo',
+        'tipo',
+        'aula',
     ];
 
     public function proceso()

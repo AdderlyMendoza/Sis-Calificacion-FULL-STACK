@@ -125,7 +125,7 @@ class CalificacionController extends Controller
     {
         // Generar el HTML que queremos convertir a PDF
         $html = '
-        <h1 style="text-align:center;">Resultados Examen Simulacro QUILCAPUNCO - 5to GRADO</h1>
+        <h1 style="text-align:center;">Resultados del Examen Simulacro JOSE MARIA ARGUEDAS QUICHO AZAROMA OLLACHEA - CARABAYA</h1>
         <hr>
         <table width="100%" cellspacing="0" cellpadding="10" border="1">
             <thead>
@@ -133,7 +133,6 @@ class CalificacionController extends Controller
                     <th style="text-align:left;">Puesto</th>
                     <th style="text-align:left;">DNI</th>
                     <th style="text-align:left;">Apellidos y Nombres</th>
-                    <th style="text-align:left;">Sección</th>
                     <th style="text-align:right;">Puntaje</th>
                 </tr>
             </thead>
@@ -149,7 +148,6 @@ class CalificacionController extends Controller
                 <td>' . $puesto . '</td>
                 <td>' . $resultado['dni'] . '</td>
                 <td>' . $nombreCompleto . '</td>
-                <td>' . $resultado['carrera'] . '</td>
                 <td style="text-align:right;">' . $puntaje . '</td>
             </tr>';
         }

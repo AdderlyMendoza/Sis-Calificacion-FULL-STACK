@@ -210,7 +210,7 @@ class FichasRespuestasController extends Controller
 
         // Obtener solo los DNI y tipo de FichasIdentificacion que correspondan a los lithos
         $postulantes = FichasIdentificacion::whereIn('litho', $lithos)
-            ->get(['tipo', 'litho']) // Obtener solo dni, tipo y litho
+            ->get(['tipo', 'litho', 'dni']) // Obtener solo dni, tipo y litho
             ->keyBy('litho'); // Usa 'litho' como clave
 
         // Agregar los datos del postulante a cada dato de FichasRespuestas
@@ -218,8 +218,10 @@ class FichasRespuestasController extends Controller
             // Solo asignar si el litho existe en postulantes
             if (isset($postulantes[$item->litho])) {
                 $item->tipo_identificacion = $postulantes[$item->litho]->tipo; // Asignar TIPO
+                $item->dni_identificacion = $postulantes[$item->litho]->dni; // Asignar DNI
             } else {
                 $item->tipo_identificacion = null; // Si no hay coincidencia, asignar null
+                $item->dni_identificacion = null; // Si no hay coincidencia, asignar null
             }
         }
 
@@ -343,6 +345,7 @@ class FichasRespuestasController extends Controller
         return $pdf->download('erroresFichaRespuestas.pdf');
     }
 
+
     public function exportarErroresFichResp()
     {
         // Obtener todos los datos de FichasRespuestas
@@ -380,9 +383,7 @@ class FichasRespuestasController extends Controller
             }
         }
 
-
-
-
+        $datos = [];
         foreach ($allDatos as $dato) {
             Log::info('Datos de errores:', [$dato]);
             if ($dato->tipo != $dato->tipo_identificacion) {
@@ -392,41 +393,62 @@ class FichasRespuestasController extends Controller
             }
         }
 
-        // Generar el HTML para convertir a PDF
-        $html = '
-    <h1 style="text-align:center;">Errores de las Fichas de Respuestas</h1>
-    <hr>
-    <table width="100%" cellspacing="0" cellpadding="10" border="1">
-        <thead>
-            <tr>
-                <th style="text-align:left;">Nº</th>
-                <th style="text-align:left;">DNI</th>
-                <th style="text-align:left;">Apellidos y Nombres</th>
-                <th style="text-align:left;">Carrera</th>
-                <th style="text-align:left;">Error</th>
-            </tr>
-        </thead>
-        <tbody>';
+        // Si no hay datos, generar un PDF con mensaje "Sin errores"
+        if (empty($datos)) {
+            $html = '
+            <h1 style="text-align:center;">Errores de las Fichas de Respuestas</h1>
+            <hr>
+            <table width="100%" cellspacing="0" cellpadding="10" border="1">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Nº</th>
+                        <th style="text-align:left;">DNI</th>
+                        <th style="text-align:left;">Apellidos y Nombres</th>
+                        <th style="text-align:left;">Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="text-align:center; font-style:italic;">Sin errores</td>
+                    </tr>
+                </tbody>
+            </table>
+        ';
+        } else {
+            // Generar el HTML para convertir a PDF si hay errores
+            $html = '
+        <h1 style="text-align:center;">Errores de las Fichas de Respuestas</h1>
+        <hr>
+        <table width="100%" cellspacing="0" cellpadding="10" border="1">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">Nº</th>
+                    <th style="text-align:left;">DNI</th>
+                    <th style="text-align:left;">Apellidos y Nombres</th>
+                    <th style="text-align:left;">Error</th>
+                </tr>
+            </thead>
+            <tbody>';
 
-        $puesto = 0;
-        // Agregar filas al HTML para cada error detectado
-        foreach ($datos as $index => $resultado) {
-            $puesto = $puesto + 1; // Poner el puesto comenzando desde 1
-            $nombreCompleto = trim($resultado->paterno . ' ' . $resultado->materno . ', ' . $resultado->nombre);
+            $puesto = 0;
+            // Agregar filas al HTML para cada error detectado
+            foreach ($datos as $index => $resultado) {
+                $puesto = $puesto + 1; // Poner el puesto comenzando desde 1
+                $nombreCompleto = trim($resultado->paterno . ' ' . $resultado->materno . ', ' . $resultado->nombre);
+
+                $html .= '
+            <tr>
+                <td>' . $puesto . '</td>
+                <td>' . $resultado->dni . '</td>
+                <td>' . $nombreCompleto . '</td>
+                <td>Tipo de Prueba</td>
+            </tr>';
+            }
 
             $html .= '
-        <tr>
-            <td>' . $puesto . '</td>
-            <td>' . $resultado->dni . '</td>
-            <td>' . $nombreCompleto . '</td>
-            <td>' . $resultado->carrera . '</td>
-            <td>Tipo de Prueba</td>
-        </tr>';
+            </tbody>
+        </table>';
         }
-
-        $html .= '
-        </tbody>
-    </table>';
 
         // Generar el PDF con Dompdf
         $pdf = Pdf::loadHTML($html);

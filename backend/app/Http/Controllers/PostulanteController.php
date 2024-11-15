@@ -55,6 +55,8 @@ class PostulanteController extends Controller
                         'email'   => $row[7],
                         'carrera' => $row[8],
                         'codigo' => $row[9],
+                        'tipo' => $row[10],
+                        'aula' => $row[11],
                     ]);
                 }
             }
