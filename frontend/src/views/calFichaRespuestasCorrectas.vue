@@ -8,19 +8,35 @@
                 <div
                     class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
                     <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
-                        <h1>Subir Respuestas Correctas</h1>
-                        <form @submit.prevent="subirRptCorrectas" class="mt-4 flex items-center">
-                            <input type="file" @change="cargaDeFile('rptc')" multiple
-                                aria-label="Subir Fichas de Respuestas"
-                                class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300" />
-                            <button type="submit"
-                                class="ml-4 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                                Subir
-                            </button>
-                        </form>
-                        <div class="mt-4">
-                            <p v-if="message.rptc" class="text-green-500">{{ message.rptc }}</p>
-                            <p v-if="error.rptc" class="text-red-500">{{ error.rptc }}</p>
+                        <div class="items-center justify-between py-3 bg-gray-50 border-b border-gray-200">
+                            <div>
+                                <h1>Elegir área</h1>
+                                <select v-model="selectedArea"
+                                    class="my-4 w-full text-sm text-gray-700 border border-gray-300 rounded-lg py-1 px-3">
+                                    <option value="" disabled selected>Selecciona un área</option>
+                                    <option value="ingenieria">Ingeniería</option>
+                                    <option value="biomedicas">Biomédicas</option>
+                                    <option value="sociales">Sociales</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <h1>Subir Respuestas Correctas</h1>
+                                <form @submit.prevent="subirRptCorrectas" class="mt-4 flex items-center">
+                                    <input type="file" @change="cargaDeFile('rptc')" multiple
+                                        aria-label="Subir Fichas de Respuestas"
+                                        class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300" />
+                                    <button type="submit"
+                                        class="ml-4 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                                        Subir
+                                    </button>
+                                </form>
+                                <div class="mt-4">
+                                    <p v-if="message.rptc" class="text-green-500">{{ message.rptc }}</p>
+                                    <p v-if="error.rptc" class="text-red-500">{{ error.rptc }}</p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -68,9 +84,11 @@
                                         </td>
                                     </tr>
                                     <tr v-for="(item, i) in datos" :key="item.id">
-                                        <td class="py-2 px-4 border-b text-left">{{ (currentPageDatos - 1) * perPage +
-                                            (i + 1) }}</td>
-                                        <td class="py-2 px-4 border-b text-left">AREA</td>
+                                        <td class="py-2 px-4 border-b text-left">{{ (currentPageDatos - 1) * perPage +(i + 1) }}</td>
+                                        <!-- <td class="py-2 px-4 border-b text-left">{{ item.area_id }}</td> -->
+                                        <td v-if="item.area_id == 1" class="py-2 px-4 border-b text-left">Ing</td>
+                                        <td v-if="item.area_id == 2" class="py-2 px-4 border-b text-left">Bio</td>
+                                        <td v-if="item.area_id == 3" class="py-2 px-4 border-b text-left">Soc</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.litho }}</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.tipo }}</td>
                                         <td class="py-2 px-4 border-b text-left">{{ item.respuestas }}</td>
@@ -82,7 +100,8 @@
                                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                                     Anterior
                                 </button>
-                                <span class="text-gray-700">Página {{ currentPageDatos }} de {{ lastPageDatos }}</span>
+                                <span class="text-gray-700">Página {{ currentPageDatos }} de {{ lastPageDatos
+                                    }}</span>
                                 <button @click="cambiarPagina(currentPageDatos + 1)"
                                     :disabled="currentPageDatos >= lastPageDatos"
                                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
@@ -109,7 +128,8 @@
                                             disponibles.</td>
                                     </tr>
                                     <tr v-for="(archivo, index) in archivos" :key="index">
-                                        <td class="py-2 px-4 border-b text-left">{{ (currentPageArchivos - 1) * perPage
+                                        <td class="py-2 px-4 border-b text-left">{{ (currentPageArchivos - 1) *
+                                            perPage
                                             + (index
                                             + 1) }}</td>
                                         <td class="py-2 px-4 border-b text-left">{{ archivo }}</td>
@@ -191,9 +211,36 @@
             cargaDeFile(type) {
                 this.files[type] = Array.from(event.target.files);
             },
-            async subirRptCorrectas() {
-                const formData = this.createFormData(this.files.rptc);
+            // async subirRptCorrectas() {
+            //     const formData = this.createFormData(this.files.rptc);
+            //     try {
+            //         await axios.post('http://localhost:8000/api/fr-resp-correctas', formData, {
+            //             headers: {
+            //                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            //                 'Content-Type': 'multipart/form-data',
+            //             },
+            //         });
+            //         this.setMessage('rptc', 'Archivos cargados con éxito');
+            //     } catch (error) {
+            //         this.setError('rptc', error);
+            //     }
+            // },
+            async subirRptCorrectas() { // enviar respuestas con area
+                // Crear un nuevo FormData
+                const formData = new FormData();
+
+                // Agregar los archivos seleccionados al FormData (esto depende de cómo estés gestionando los archivos en `this.files.rptp`)
+                if (this.files.rptc && this.files.rptc.length > 0) {
+                    this.files.rptc.forEach(file => {
+                        formData.append('files[]', file);
+                    });
+                }
+
+                // Agregar el área seleccionada al FormData
+                formData.append('frArea', this.selectedArea);
+
                 try {
+                    // Enviar el formulario con los archivos y el área seleccionada
                     await axios.post('http://localhost:8000/api/fr-resp-correctas', formData, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -241,7 +288,7 @@
                     this.datos = response.data.data;
                     this.currentPageDatos = response.data.current_page;
                     this.lastPageDatos = response.data.last_page;
-                    // console.log("OBTENER DATOS: ", this.currentPageDatos, this.lastPageDatos);
+                    console.log("OBTENER DATOS: ", this.currentPageDatos, this.lastPageDatos);
 
                 } catch (error) {
                     console.error('Error al obtener los datos:', error);
