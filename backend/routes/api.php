@@ -55,7 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/procesosAdmision', [ProcesoAdmisionController::class, 'index']);
 
 
-
     // ################################################  DISTRIBUCION DE AULAS  ################################################
     // Postulantes
     Route::get('/postulantes', [PostulanteController::class, 'index']);
@@ -64,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Distribucion de aulas
     Route::get('/obtener-campos', [PostulanteController::class, 'obtenerCampos']);
     Route::post('/fr-campos-seleccionados', [PostulanteController::class, 'frCamposSeleccionados']);
+
 
     // #####################################################  CALIFICACION  #####################################################
     // Ficha identificacion 

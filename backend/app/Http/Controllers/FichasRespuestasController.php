@@ -14,12 +14,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
+
 class FichasRespuestasController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
 
     ///////////////////////////////////////////////////////// SUBIDA DE ARCHIVOS Y GUARDADO DE DATOS EN LA DB ///////////////////////////////////////////
 
@@ -30,11 +30,16 @@ class FichasRespuestasController extends Controller
         // Validar los archivos subidos
         $request->validate([
             'files.*' => 'required|file|mimetypes:text/plain,application/octet-stream',
+            'frArea.*' => 'required'
         ]);
+
+        // Obtener el área seleccionada
+        $area = $request->input('frArea');  // Ahora capturamos el valor de frArea
+        Log::info("AREA ELEGIDA -fr RESPUESTAS POSTULANTES:", [$area]);
 
         // Procesar cada archivo subido
         foreach ($request->file('files') as $file) {
-            $this->procesarFile($file);
+            $this->procesarFile($file, $area);
         }
 
         return response()->json(['message' => 'Datos cargados con éxito']);
@@ -45,7 +50,7 @@ class FichasRespuestasController extends Controller
      *
      * @param \Illuminate\Http\UploadedFile $file
      */
-    private function procesarFile($file)
+    private function procesarFile($file, $area)
     {
         // Obtener el nombre original del archivo
         $originalName = $file->getClientOriginalName();
@@ -63,7 +68,7 @@ class FichasRespuestasController extends Controller
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
-                $this->extractAndSaveData($line);
+                $this->extractAndSaveData($line, $area);
             }
         }
     }
@@ -75,7 +80,7 @@ class FichasRespuestasController extends Controller
      * 
      */
 
-    private function extractAndSaveData($line)
+    private function extractAndSaveData($line, $area)
     {
         // Extraer campos según el formato
         $camp1 = substr($line, 0, 21);
@@ -89,11 +94,12 @@ class FichasRespuestasController extends Controller
         $tipo = substr($campo5, 6, 1);
         $respuestas = substr($campo5, 7, 60);
 
+
         // Asignar un valor predeterminado para id_archivo
         $id_archivo = "no se xd";
         Log::info("DATOS PARA:", [$litho]);
 
-        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, 3); // 3 = sociales
+        $puntaje = $this->obtenerPuntaje($respuestas, $tipo, $area); // 1 = ING , 2 = BIO, 3 = SOC
 
 
         // Validar datos antes de guardar
@@ -177,18 +183,37 @@ class FichasRespuestasController extends Controller
         // Iteramos sobre las respuestas
         for ($i = 0; $i < $length; $i++) {
             $ponderacionActual = (float)$ponderacionCalificar[$i];
+            Log::info("INDICE:", [$i]);
 
 
-            if ($respuesta[$i] === $respuestasFijas[$i]) {
-                // $ponderacionActual = (float)$ponderacionCalificar[$recorrerPonderacion];
-                Log::info("INDICE:", [$i]);
-
-                Log::info("ponderacionActual:", ['valor' => $ponderacionActual]);
-
-
-                $puntaje = $puntaje + (10 * $ponderacionActual);
-                Log::info("puntaje:", [$puntaje]);
+            // Verificar si la respuesta está vacía
+            if ($respuesta[$i] === '') {
+                $puntaje = 0;  // Si la respuesta está vacía, el puntaje es 0
+                Log::info("Respuesta vacía en índice {$i}, puntaje establecido a 0.");
+                continue;  // Continuar con la siguiente iteración del ciclo
             }
+
+            if (isset($respuesta[$i]) && isset($respuestasFijas[$i])) {
+                if ($respuesta[$i] === $respuestasFijas[$i]) {
+                    $ponderacionActual = (float)$ponderacionCalificar[$recorrerPonderacion];
+                    // Log::info("INDICE:", [$i]);
+                    // Log::info("ponderacionActual:", ['valor' => $ponderacionActual]);
+
+                    $puntaje = $puntaje + (10 * $ponderacionActual);
+
+
+                    // $puntaje = $puntaje + 5; // cada pregunta correcta vale 5
+                    // Log::info("puntaje:", [$puntaje]);
+
+                }
+                // si es vacio = 2 puntos
+                if ($respuesta[$i] === ' ') {
+                    $puntaje = $puntaje + 2; // pregunta vacia vale 2
+                }
+            } else {
+                Log::warning("Respuesta o respuestas fijas fuera de rango", ['respuesta' => $respuesta, 'respuestasFijas' => $respuestasFijas]);
+            }
+            $recorrerPonderacion = $recorrerPonderacion + 1;
         }
 
         // Retornamos el puntaje total calculado

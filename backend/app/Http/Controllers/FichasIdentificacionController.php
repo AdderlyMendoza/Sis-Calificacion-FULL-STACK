@@ -395,29 +395,29 @@ class FichasIdentificacionController extends Controller
         if ($postulantesConErroresDNI->isEmpty() && $postulantesConErroresFicha->isEmpty()) {
             // Si no hay postulantes con errores, generar el PDF con el mensaje "Sin errores"
             $html = '
-        <h1 style="text-align:center;">Errores de las Fichas de Identificación</h1>
-        <hr>
-        <p style="text-align:center; font-size: 16px;">No se han encontrado errores.</p>
-        <table width="100%" cellspacing="0" cellpadding="10" border="1">
-            <thead>
-                <tr>
-                    <th style="text-align:left;">Nº</th>
-                    <th style="text-align:left;">DNI</th>
-                    <th style="text-align:left;">Apellidos y Nombres</th>
-                    <th style="text-align:left;">Errores</th>
-                    <th style="text-align:left;">Post Tipo</th>
-                    <th style="text-align:left;">Post Aula</th>
-                    <th style="text-align:left;">Iden Tipo</th>
-                    <th style="text-align:left;">Iden Aula</th>
-                </tr> 
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="4" style="text-align:center; font-style:italic;">Sin errores</td>
-                </tr>
-            </tbody>
-        </table>
-    ';
+                <h1 style="text-align:center;">Errores de las Fichas de Identificación</h1>
+                <hr>
+                <p style="text-align:center; font-size: 16px;">No se han encontrado errores.</p>
+                <table width="100%" cellspacing="0" cellpadding="10" border="1">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Nº</th>
+                            <th style="text-align:left;">DNI</th>
+                            <th style="text-align:left;">Apellidos y Nombres</th>
+                            <th style="text-align:left;">Errores</th>
+                            <th style="text-align:left;">Post Tipo</th>
+                            <th style="text-align:left;">Post Aula</th>
+                            <th style="text-align:left;">Iden Tipo</th>
+                            <th style="text-align:left;">Iden Aula</th>
+                        </tr> 
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="text-align:center; font-style:italic;">Sin errores</td>
+                        </tr>
+                    </tbody>
+                </table>
+            ';
         } else {
             $html = '
                 <h1 style="text-align:center;">Errores de las Fichas de Identificación</h1>
@@ -489,39 +489,39 @@ class FichasIdentificacionController extends Controller
                 });
 
                 // Paso 3: Imprimir los errores de Tipo o Aula
-                foreach ($postulantesConErroresFicha as $index => $postulante) {
-                    $puesto = $index + 1;
-                    $nombreCompleto = trim($postulante->paterno . ' ' . $postulante->materno . ', ' . $postulante->nombre);
+                // foreach ($postulantesConErroresFicha as $index => $postulante) {
+                //     $puesto = $index + 1;
+                //     $nombreCompleto = trim($postulante->paterno . ' ' . $postulante->materno . ', ' . $postulante->nombre);
 
-                    // Verificar si hay errores en los tipos o aulas
-                    $errores = '';
-                    if ($postulante->tipo != $postulante->ficha_tipo) {
-                        $errores .= 'TIPO ';
-                    }
-                    if ($postulante->aula != $postulante->ficha_aula) {
-                        $errores .= 'AULA ';
-                    }
+                //     // Verificar si hay errores en los tipos o aulas
+                //     $errores = '';
+                //     if ($postulante->tipo != $postulante->ficha_tipo) {
+                //         $errores .= 'TIPO ';
+                //     }
+                //     if ($postulante->aula != $postulante->ficha_aula) {
+                //         $errores .= 'AULA ';
+                //     }
 
-                    if ($errores != '') {
-                        // Asignar valores predeterminados si son nulos
-                        $tipoPostulante = $postulante->tipo ?? 'T';
-                        $aulaPostulante = $postulante->aula ?? '311';
-                        $tipoFicha = $postulante->ficha_tipo ?? 'N/A';
-                        $aulaFicha = $postulante->ficha_aula ?? 'N/A';
+                //     if ($errores != '') {
+                //         // Asignar valores predeterminados si son nulos
+                //         $tipoPostulante = $postulante->tipo ?? 'T';
+                //         $aulaPostulante = $postulante->aula ?? '311';
+                //         $tipoFicha = $postulante->ficha_tipo ?? 'N/A';
+                //         $aulaFicha = $postulante->ficha_aula ?? 'N/A';
 
-                        $html .= '
-                        <tr>
-                            <td>' . $puesto . '</td>
-                            <td>' . $postulante->dni_postulante . '</td>
-                            <td>' . $nombreCompleto . '</td>
-                            <td>' . $errores . '</td>
-                            <td>' . $tipoPostulante . '</td>
-                            <td>' . $aulaPostulante . '</td>
-                            <td>' . $tipoFicha . '</td>
-                            <td>' . $aulaFicha . '</td>
-                        </tr>';
-                    }
-                }
+                //         $html .= '
+                //         <tr>
+                //             <td>' . $puesto . '</td>
+                //             <td>' . $postulante->dni_postulante . '</td>
+                //             <td>' . $nombreCompleto . '</td>
+                //             <td>' . $errores . '</td>
+                //             <td>' . $tipoPostulante . '</td>
+                //             <td>' . $aulaPostulante . '</td>
+                //             <td>' . $tipoFicha . '</td>
+                //             <td>' . $aulaFicha . '</td>
+                //         </tr>';
+                //     }
+                // }
 
                 $html .= '</tbody>
                 </table>';

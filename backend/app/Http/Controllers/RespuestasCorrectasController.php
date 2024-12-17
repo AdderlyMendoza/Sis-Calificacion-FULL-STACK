@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\RespuestasCorrectas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,11 +19,16 @@ class RespuestasCorrectasController extends Controller
         // Validar los archivos subidos
         $request->validate([
             'files.*' => 'required|file|mimetypes:text/plain,application/octet-stream',
+            'frArea.*' => 'required'
         ]);
+
+        // Obtener el área seleccionada
+        $area = $request->input('frArea');  // Ahora capturamos el valor de frArea
+        Log::info("AREA ELEGIDA -fr RESPUESTAS CORRECTAS:", [$area]);
 
         // Procesar cada archivo subido
         foreach ($request->file('files') as $file) {
-            $this->procesarFile($file);
+            $this->procesarFile($file, $area);
         }
 
         return response()->json(['message' => 'Datos cargados con éxito']);
@@ -33,7 +39,7 @@ class RespuestasCorrectasController extends Controller
      *
      * @param \Illuminate\Http\UploadedFile $file
      */
-    private function procesarFile($file)
+    private function procesarFile($file, $area)
     {
         // Obtener el nombre original del archivo
         $originalName = $file->getClientOriginalName();
@@ -51,7 +57,7 @@ class RespuestasCorrectasController extends Controller
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
-                $this->extractAndSaveData($line);
+                $this->extractAndSaveData($line, $area);
             }
         }
     }
@@ -63,7 +69,7 @@ class RespuestasCorrectasController extends Controller
      * 
      */
 
-    private function extractAndSaveData($line)
+    private function extractAndSaveData($line, $area)
     {
         // Extraer campos según el formato
         $camp1 = substr($line, 0, 21);
@@ -80,6 +86,9 @@ class RespuestasCorrectasController extends Controller
         // Asignar un valor predeterminado para id_archivo
         $id_archivo = "no se xd";
 
+        // Traer area_id con area
+        // $area_id = Area::where('nombreArea', $area)->first();
+        $area_id = Area::where('nombreArea', $area)->value('id');
 
         // Validar datos antes de guardar
         if ($this->validarData($camp1, $camp2, $camp3)) {
@@ -92,7 +101,7 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
-                'area_id' => 3, // sociales
+                'area_id' => $area_id,     
                 'id_proceso' => 1, // 1er proceso
             ]);
         } else {
@@ -105,7 +114,7 @@ class RespuestasCorrectasController extends Controller
                 'litho' => $litho,
                 'tipo' => $tipo,
                 'respuestas' => $respuestas,
-                'area_id' => 3, // sociales
+                'area_id' => $area_id,
                 'id_proceso' => 1, // 1er proceso
             ]);
         }

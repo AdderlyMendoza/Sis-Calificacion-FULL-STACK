@@ -49,7 +49,7 @@ class CalificacionController extends Controller
                             'puntaje' => optional(FichasRespuestas::where('litho', $litho)->first())->puntaje,
                         ];
                     } else {
-                        Log::warning("Postulante no encontrad: ", ['dni' => $dni, 'litho' => $litho]);
+                        Log::warning("Postulante no encontrado: ", ['dni' => $dni, 'litho' => $litho]);
                     }
                 } else {
                     Log::warning("Ficha de identificación no encontrada para litho: ", ['litho' => $litho]);
@@ -80,10 +80,11 @@ class CalificacionController extends Controller
         switch ($tipo) {
             case 'excel':
                 // Lógica para exportar a Excel
-                return $this->exportarExcelPorPrograma($resultados);
+                return $this->exportarExcel($resultados);
             case 'pdf':
                 // Lógica para exportar a PDF
                 return $this->exportarPdfporArea($resultados);
+                // return $this->exportarPdfporPrograma($resultados);
             case 'txt':
                 // Lógica para exportar a TXT
                 return $this->exportarTxt($resultados);
@@ -125,7 +126,7 @@ class CalificacionController extends Controller
     {
         // Generar el HTML que queremos convertir a PDF
         $html = '
-        <h1 style="text-align:center;">Resultados del Examen Simulacro JOSE MARIA ARGUEDAS QUICHO AZAROMA OLLACHEA - CARABAYA</h1>
+        <h1 style="text-align:center;">Resultados del Examen Simulacro Colegio de Alto Rendimiento COAR</h1>
         <hr>
         <table width="100%" cellspacing="0" cellpadding="10" border="1">
             <thead>
@@ -238,7 +239,7 @@ class CalificacionController extends Controller
             ->toArray();
 
         // Generar el HTML para el PDF
-        $html = '<h1 style="text-align:center;">Resultados Examen Simulacro MACUSANI</h1><hr>';
+        $html = '<h1 style="text-align:center;">Resultados Examen QUIMICA - 23/11/2024</h1><hr>';
 
         // Recorrer la lista de carreras en el orden definido por la tabla 'vacantes'
         foreach ($vacantesPorCarrera as $vacante) {

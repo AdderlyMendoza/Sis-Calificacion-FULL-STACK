@@ -55,8 +55,27 @@ class PostulanteController extends Controller
                         'email'   => $row[7],
                         'carrera' => $row[8],
                         'codigo' => $row[9],
-                        'tipo' => $row[10],
-                        'aula' => $row[11],
+                        // 'tipo' => $row[10],
+                        'tipo' => "TIPO",
+                        // 'aula' => $row[11],
+                        'aula' => "AULA",
+                    ]);
+                }else {
+                    Postulante::create([
+                        'dni'     => "vacio",
+                        'nombre'  => "vacio",
+                        'paterno' => "vacio",
+                        'materno' => "vacio",
+                        'ubigeo'  => "vacio",
+                        'colegio' => "vacio",
+                        'celular' => "vacio",
+                        'email'   => "vacio",
+                        'carrera' => "vacio",
+                        'codigo' => "vacio",
+                        // 'tipo' => $row[10],
+                        'tipo' => "TIPO",
+                        // 'aula' => $row[11],
+                        'aula' => "AULA",
                     ]);
                 }
             }
