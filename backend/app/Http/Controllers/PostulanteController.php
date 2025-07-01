@@ -26,24 +26,90 @@ class PostulanteController extends Controller
     }
 
 
+    // public function uploadExcel(Request $request)
+    // {
+    //     try {
+    //         $file = $request->file('file');
+
+    //         // Asegúrate de que el archivo fue recibido
+    //         if (!$file) {
+    //             return response()->json(['error' => 'No file uploaded'], 400);
+    //         }
+
+    //         // Cargar el archivo
+    //         $spreadsheet = IOFactory::load($file->getRealPath());
+    //         $data = $spreadsheet->getActiveSheet()->toArray();
+
+    //         // Iterar sobre las filas y guardarlas en la base de datos
+    //         foreach ($data as $row) {
+    //             // Suponiendo que la primera fila contiene los encabezados
+    //             if ($row[0] !== 'dni') { // Ajusta este chequeo según tus encabezados
+    //                 Postulante::create([
+    //                     'dni'     => $row[0],
+    //                     'nombre'  => $row[1],
+    //                     'paterno' => $row[2],
+    //                     'materno' => $row[3],
+    //                     'ubigeo'  => $row[4],
+    //                     'colegio' => $row[5],
+    //                     'celular' => $row[6],
+    //                     'email'   => $row[7],
+    //                     'carrera' => $row[8],
+    //                     'codigo' => $row[9],
+    //                     // 'tipo' => $row[10],
+    //                     'tipo' => "TIPO",
+    //                     // 'aula' => $row[11],
+    //                     'aula' => "AULA",
+    //                 ]);
+    //             }else {
+    //                 Postulante::create([
+    //                     'dni'     => "vacio",
+    //                     'nombre'  => "vacio",
+    //                     'paterno' => "vacio",
+    //                     'materno' => "vacio",
+    //                     'ubigeo'  => "vacio",
+    //                     'colegio' => "vacio",
+    //                     'celular' => "vacio",
+    //                     'email'   => "vacio",
+    //                     'carrera' => "vacio",
+    //                     'codigo' => "vacio",
+    //                     // 'tipo' => $row[10],
+    //                     'tipo' => "TIPO",
+    //                     // 'aula' => $row[11],
+    //                     'aula' => "AULA",
+    //                 ]);
+    //             }
+    //         }
+
+    //         return response()->json(['success' => 'File imported successfully'], 200);
+    //     } catch (\Exception $e) {
+    //         // Captura cualquier error y regístralo
+    //         return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+    
     public function uploadExcel(Request $request)
     {
+        Log::info('Inicio de carga de archivo Excel.');
+
         try {
             $file = $request->file('file');
 
-            // Asegúrate de que el archivo fue recibido
             if (!$file) {
+                Log::warning('No se recibió ningún archivo.');
                 return response()->json(['error' => 'No file uploaded'], 400);
             }
 
-            // Cargar el archivo
+            Log::info('Archivo recibido: ' . $file->getClientOriginalName());
+
             $spreadsheet = IOFactory::load($file->getRealPath());
             $data = $spreadsheet->getActiveSheet()->toArray();
 
-            // Iterar sobre las filas y guardarlas en la base de datos
-            foreach ($data as $row) {
-                // Suponiendo que la primera fila contiene los encabezados
-                if ($row[0] !== 'dni') { // Ajusta este chequeo según tus encabezados
+            Log::info('Archivo Excel cargado correctamente. Total filas: ' . count($data));
+
+            foreach ($data as $index => $row) {
+                // Saltamos la primera fila si es encabezado
+                if ($row[0] !== 'dni') {
                     Postulante::create([
                         'dni'     => $row[0],
                         'nombre'  => $row[1],
@@ -52,15 +118,16 @@ class PostulanteController extends Controller
                         'ubigeo'  => $row[4],
                         'colegio' => $row[5],
                         'celular' => $row[6],
-                        'email'   => $row[7],
+                        // 'email'   => $row[7] ?? 'vacio',
+                        'email' => !empty(trim($row[7])) ? $row[7] : 'sin_email_' . $row[0] . '@example.com', # si esta vacio y evitar duplicados
                         'carrera' => $row[8],
-                        'codigo' => $row[9],
-                        // 'tipo' => $row[10],
-                        'tipo' => "TIPO",
-                        // 'aula' => $row[11],
-                        'aula' => "AULA",
+                        // 'codigo'  => $row[9] ?? 'vacio',
+                        'codigo'  => !empty(trim($row[9] ?? '')) ? $row[9] : null,
+                        'tipo'    => "TIPO",
+                        'aula'    => "AULA",
                     ]);
-                }else {
+                    Log::info("Fila $index importada: DNI {$row[0]}");
+                } else {
                     Postulante::create([
                         'dni'     => "vacio",
                         'nombre'  => "vacio",
@@ -71,21 +138,24 @@ class PostulanteController extends Controller
                         'celular' => "vacio",
                         'email'   => "vacio",
                         'carrera' => "vacio",
-                        'codigo' => "vacio",
-                        // 'tipo' => $row[10],
-                        'tipo' => "TIPO",
-                        // 'aula' => $row[11],
-                        'aula' => "AULA",
+                        'codigo'  => "vacio",
+                        'tipo'    => "TIPO",
+                        'aula'    => "AULA",
                     ]);
+                    Log::info("Fila $index importada con valores vacíos (fila encabezado).");
                 }
             }
 
+            Log::info('Carga de archivo Excel finalizada con éxito.');
+
             return response()->json(['success' => 'File imported successfully'], 200);
+
         } catch (\Exception $e) {
-            // Captura cualquier error y regístralo
+            Log::error('Error al importar archivo Excel: ' . $e->getMessage());
             return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function obtenerCampos()
     {

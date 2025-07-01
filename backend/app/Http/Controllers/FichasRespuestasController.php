@@ -143,13 +143,29 @@ class FichasRespuestasController extends Controller
 
     private function obtenerPuntaje($respuesta, $tipo, $areaId) // respuestas, tipo de examen y área
     {
-        $puntaje = 0;
-        Log::info("Valor de tipo:", [$tipo]);
+        // Datos recibidos
+        Log::info("areaId:", [$areaId]);
+        Log::info("Tipo de prueba:", [$tipo]);
         Log::info("respuestas:", [$respuesta]);
 
+        if ($areaId == 'ingenieria') { // PonderacionSeeder.php
+            $extraeArea = 1;
+        } else if ($areaId == 'biomedicas') {
+            $extraeArea = 2;
+        } else if ($areaId == 'sociales') {
+            $extraeArea = 3;
+        }
 
-        // ! FALTA PONER AREA
-        $respuestasFijas = optional(RespuestasCorrectas::where('tipo', $tipo)->first())->respuestas;
+        $puntaje = 0;
+
+        // $respuestasFijas = optional(RespuestasCorrectas::where('tipo', $tipo)->first())->respuestas; // Solo por tipo
+
+        $respuestasFijas = optional( // tipo y area
+            RespuestasCorrectas::where('tipo', $tipo)
+                            ->where('area_id', $extraeArea)
+                            ->first()
+        )->respuestas;
+
         Log::info("respuestasFijas:", [$respuestasFijas]);
 
         // Si no hay respuestas fijas, retornar 0
@@ -157,10 +173,8 @@ class FichasRespuestasController extends Controller
             return 0;
         }
 
-        // Obtener las ponderaciones para el área dada desde la base de datos
-        $ponderaciones = Ponderacion::where('area_id', $areaId)->get();
-        Log::info("ponderaciones:", [$ponderaciones]);
-
+        // Obtener las ponderaciones para el área
+        $ponderaciones = Ponderacion::where('area_id', $extraeArea)->get();
 
         // Verificar si se encontraron ponderaciones
         if ($ponderaciones->isEmpty()) {
@@ -168,6 +182,7 @@ class FichasRespuestasController extends Controller
         }
 
         $ponderacionCalificar = [];
+
         foreach ($ponderaciones as $ponderacion) {
             // Añadimos la ponderación para cada pregunta del curso
             for ($i = 0; $i < $ponderacion->cantidadPreguntas; $i++) {
@@ -175,45 +190,42 @@ class FichasRespuestasController extends Controller
             }
         }
 
-        // Determinamos la longitud mínima entre la respuesta y las respuestas fijas
-        $length = 60; # cantidad de PREGUNTAS
-        $recorrerPonderacion = 0; // Contador para recorrer la ponderación
-        Log::info("TODAS LAS PONDERACIONS:", ['ponderaciones' => $ponderacionCalificar]);
+        // cantidad de preguntas
+        $length = 60; 
 
-        // Iteramos sobre las respuestas
+        // Log::info("TODAS LAS PONDERACIONS:", ['ponderaciones' => $ponderacionCalificar]);
+
+        // Recorremos cada respuesta y calculamos puntaje
         for ($i = 0; $i < $length; $i++) {
+
             $ponderacionActual = (float)$ponderacionCalificar[$i];
-            Log::info("INDICE:", [$i]);
-
-
-            // Verificar si la respuesta está vacía
-            if ($respuesta[$i] === '') {
-                $puntaje = 0;  // Si la respuesta está vacía, el puntaje es 0
-                Log::info("Respuesta vacía en índice {$i}, puntaje establecido a 0.");
-                continue;  // Continuar con la siguiente iteración del ciclo
-            }
 
             if (isset($respuesta[$i]) && isset($respuestasFijas[$i])) {
-                if ($respuesta[$i] === $respuestasFijas[$i]) {
-                    $ponderacionActual = (float)$ponderacionCalificar[$recorrerPonderacion];
-                    // Log::info("INDICE:", [$i]);
-                    // Log::info("ponderacionActual:", ['valor' => $ponderacionActual]);
 
+                Log::info("Evaluando respuesta", [
+                    'pregunta' => $i+1,
+                    'respuesta_marcada' => $respuesta[$i],
+                    'respuesta_correcta' => $respuestasFijas[$i],
+                ]);
+
+                Log::info("ponderacionActual:", ['valor' => $ponderacionActual]);
+
+                if ($respuesta[$i] === $respuestasFijas[$i]) { // Respuesta correcta
+                    Log::info("respt : x 10");
                     $puntaje = $puntaje + (10 * $ponderacionActual);
-
-
-                    // $puntaje = $puntaje + 5; // cada pregunta correcta vale 5
-                    // Log::info("puntaje:", [$puntaje]);
-
                 }
-                // si es vacio = 2 puntos
-                if ($respuesta[$i] === ' ') {
-                    $puntaje = $puntaje + 2; // pregunta vacia vale 2
+
+                if ($respuesta[$i] === ' ') { // Respuesta vacía
+                    Log::info("vacio : x 2");
+                    $puntaje = $puntaje + (2 * $ponderacionActual);
                 }
+
+                Log::info("puntaje:", [$puntaje]);
+
             } else {
                 Log::warning("Respuesta o respuestas fijas fuera de rango", ['respuesta' => $respuesta, 'respuestasFijas' => $respuestasFijas]);
             }
-            $recorrerPonderacion = $recorrerPonderacion + 1;
+
         }
 
         // Retornamos el puntaje total calculado

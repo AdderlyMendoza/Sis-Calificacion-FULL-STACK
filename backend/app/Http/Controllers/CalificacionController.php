@@ -23,23 +23,23 @@ class CalificacionController extends Controller
     public function traerDatos()
     {
         try {
-            // Log::info("Iniciando la recolección de datos...");
+            // Log::info("Iniciando la recolección de datos");
             $resultados = [];
-            $idenIdenticacion = FichasIdentificacion::pluck('litho');
+            $idenIdenticacion = FichasIdentificacion::pluck('litho'); # Todos los datos del campo litho de FichasIdentificacion
 
             // Log::info("Identificaciones obtenidas: ", ['litho_count' => $idenIdenticacion->count()]);
 
-            foreach ($idenIdenticacion as $litho) {
-                // Log::info("Procesando litho: ", ['litho' => $litho]);
+            foreach ($idenIdenticacion as $litho) { # recorre listo de lithos
 
                 $fichaIdentificacion = FichasIdentificacion::where('litho', $litho)->first();
+
                 if ($fichaIdentificacion) {
-                    $dni = $fichaIdentificacion->dni;
 
-                    // Log::info("DNI encontrado: ", ['dni' => $dni]);
+                    $dni = $fichaIdentificacion->dni; # Obtenemos el DNI de cada litho
 
-                    $postulante = Postulante::where('dni', $dni)->first();
-                    if ($postulante) {
+                    $postulante = Postulante::where('dni', $dni)->first(); # buscamos al postulante con ese DNI
+
+                    if ($postulante) {  # Si se encuentra al postulante extraemos sus datos
                         $resultados[] = [
                             'dni' => $dni,
                             'nombre' => $postulante->nombre,
@@ -403,6 +403,7 @@ class CalificacionController extends Controller
             return response()->json(['error' => 'Hubo un problema al generar el archivo Excel.'], 500);
         }
     }
+
 }
 
 
